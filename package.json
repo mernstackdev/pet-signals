@@ -9,6 +9,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "preview:cf": "npm run build && npx --yes wrangler@latest pages dev ./dist",
+    "deploy": "npm run build && npx --yes wrangler@latest pages deploy",
     "check": "astro check",
     "astro": "astro"
   },

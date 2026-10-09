@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import { loadEnv } from 'vite';
 import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
@@ -9,31 +10,38 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
+const CLUSTERS = ['pet-behavior', 'pet-habits', 'how-to-guides'];
+const srcDir = fileURLToPath(new URL('./src', import.meta.url));
+
 /**
- * Resolve the canonical site origin without hardcoding a domain:
- * an explicit SITE_URL wins, then common host-provided variables, then localhost.
+ * Resolve the canonical site origin without hardcoding a domain.
+ * Real environment variables win (Cloudflare/Vercel/Netlify inject these at build
+ * time), then values from a local `.env` file, then localhost for development.
  */
-function resolveSite() {
-	const candidates = [
-		process.env.SITE_URL,
-		process.env.PUBLIC_SITE_URL,
-		process.env.VERCEL_PROJECT_PRODUCTION_URL,
-		process.env.VERCEL_URL,
-		process.env.URL, // Netlify production
-		process.env.DEPLOY_PRIME_URL, // Netlify preview
-		process.env.CF_PAGES_URL, // Cloudflare Pages
-		process.env.DEPLOY_URL,
-	];
-	const found = candidates.find((value) => value && value.trim());
+function resolveSite(fileEnv) {
+	const pick = (...keys) => {
+		for (const key of keys) {
+			const value = process.env[key] ?? fileEnv[key];
+			if (value && String(value).trim()) return String(value).trim();
+		}
+		return undefined;
+	};
+
+	const found = pick(
+		'SITE_URL',
+		'PUBLIC_SITE_URL',
+		'VERCEL_PROJECT_PRODUCTION_URL',
+		'VERCEL_URL',
+		'URL', // Netlify production
+		'DEPLOY_PRIME_URL', // Netlify preview
+		'CF_PAGES_URL', // Cloudflare Pages
+		'DEPLOY_URL',
+	);
+
 	if (!found) return 'http://localhost:4321';
 	const withProtocol = /^https?:\/\//.test(found) ? found : `https://${found}`;
 	return withProtocol.replace(/\/+$/, '');
 }
-
-const SITE = resolveSite();
-const CLUSTERS = ['pet-behavior', 'pet-habits', 'how-to-guides'];
-
-const srcDir = fileURLToPath(new URL('./src', import.meta.url));
 
 /** Git commit timestamp (ISO) for a file, used for accurate sitemap `lastmod`. */
 function gitLastmod(absPath) {
@@ -87,6 +95,14 @@ function buildLastmodMap() {
 	return map;
 }
 
+// Astro's defineConfig takes an object (unlike Vite's function form), so the site
+// origin is resolved at module load. loadEnv() makes local `.env` values available.
+const fileEnv = loadEnv(
+	process.env.NODE_ENV === 'development' ? 'development' : 'production',
+	process.cwd(),
+	'',
+);
+const SITE = resolveSite(fileEnv);
 const lastmodByUrl = buildLastmodMap();
 
 // https://astro.build/config
@@ -98,8 +114,9 @@ export default defineConfig({
 	// Lighthouse runs against `astro dev`. Disable it so dev audits are meaningful.
 	devToolbar: { enabled: false },
 	redirects: {
-		// Add 301s here when a published slug changes, e.g.
-		// '/pet-behavior/old-slug/': '/pet-behavior/new-slug/',
+		// Prefer `public/_redirects` on Cloudflare for real 301s; keep this map in
+		// sync if the same URL changes need to work on other hosts.
+		// e.g. '/pet-behavior/old-slug/': '/pet-behavior/new-slug/',
 	},
 	integrations: [
 		mdx(),

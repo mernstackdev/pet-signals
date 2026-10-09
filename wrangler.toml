@@ -1,0 +1,11 @@
+# Cloudflare Pages project configuration.
+# Used by `wrangler pages deploy` / `wrangler pages dev`, and by Git-connected
+# Pages projects that read build settings from the repo.
+#
+# Set the production canonical origin in the Pages dashboard (Settings →
+# Environment variables) for BOTH the production and preview environments:
+#   SITE_URL=https://petsignals.info
+#   NODE_VERSION=22.12.0
+name = "pet-signals"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-01-01"

@@ -147,6 +147,48 @@ toolbar — which on its own injects a non-descriptive "Learn more" link and tan
 performance score. The dev toolbar is disabled in `astro.config.mjs` so dev audits
 stay meaningful, but the production build is the number that matters.
 
+## Deploy to Cloudflare
+
+The site is fully static (`output: 'static'`), so it deploys to **Cloudflare Pages** with no adapter.
+
+### Option A — Git integration (recommended)
+
+1. Push this repo to GitHub/GitLab.
+2. Cloudflare dashboard → **Workers & Pages → Create → Pages → Connect to Git** → pick the repo.
+3. Build settings:
+   - Framework preset: **Astro**
+   - Build command: `npm run build`
+   - Build output directory: `dist`
+4. Environment variables — set them for **both Production and Preview** (the preview
+   environment is easy to forget and its build will otherwise fall back to a `*.pages.dev` URL):
+   - `SITE_URL` = `https://petsignals.info` — drives canonical URLs, JSON-LD `@id`, the
+     sitemap, RSS, `/llms.txt` and the `.md` alternates
+   - `NODE_VERSION` = `22.12.0` — also pinned in `.nvmrc`
+
+### Option B — Wrangler CLI
+
+```sh
+npx wrangler login      # once
+npm run deploy          # builds, then `wrangler pages deploy`
+npm run preview:cf      # local Pages runtime that applies _headers / _redirects
+```
+
+`wrangler.toml` sets the project name (`pet-signals`) and output directory (`./dist`).
+
+### What ships in the build
+
+- **`_headers`** — immutable caching for `/_astro/*`, `Content-Type: text/markdown` for the
+  `.md` alternates, `text/plain` for the `llms*.txt` files, plus security headers and
+  `No-Vary-Search` so tracking parameters don't split the cache.
+- **`_redirects`** — add real `301`s here when a published slug changes.
+- **`404.html`** — served automatically for unknown paths.
+- Trailing-slash handling is the Pages default (`/about` → `308` → `/about/`), which matches
+  the canonical URLs the site emits.
+
+Note: a local `.env` is **not** deployed (it is gitignored), so `SITE_URL` must be set as a
+Pages environment variable. After the first deploy, add `petsignals.info` under
+**Pages → Custom domains**.
+
 ## Migrating to Sanity (next step)
 
 Pages read content **only** through `src/lib/content.ts` and `src/lib/schema.ts`. To move to Sanity:

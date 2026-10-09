@@ -1,0 +1,10 @@
+# Cloudflare redirects. One rule per line: /from /to 301
+# Docs: https://developers.cloudflare.com/pages/configuration/redirects/
+#
+# Prefer this file for URL changes on Cloudflare: it emits real 301s, whereas
+# Astro's `redirects` config generates meta-refresh HTML pages (worse for SEO).
+# When you rename a published slug, add a line here AND keep the Astro
+# `redirects` map in astro.config.mjs in sync for non-Cloudflare hosts.
+#
+# Example:
+# /pet-behavior/old-slug/ /pet-behavior/new-slug/ 301
