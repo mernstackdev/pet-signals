@@ -1,0 +1,28 @@
+{
+	"name": "pet-signals-cms",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"description": "Sanity Studio (content backend) for the Pet Signals blog. Not part of the Astro frontend build.",
+	"scripts": {
+		"dev": "sanity dev",
+		"build": "sanity build",
+		"deploy": "sanity deploy",
+		"typecheck": "tsc --noEmit",
+		"sanity": "sanity",
+		"backup": "sanity dataset export production ./backups/production.tar.gz",
+		"restore": "sanity dataset import ./backups/production.tar.gz production"
+	},
+	"dependencies": {
+		"@sanity/vision": "^6.18.0",
+		"react": "^19.2.2",
+		"react-dom": "^19.2.2",
+		"sanity": "^6.18.0",
+		"styled-components": "^6.1.15"
+	},
+	"devDependencies": {
+		"@types/react": "^19.2.0",
+		"@types/react-dom": "^19.2.0",
+		"typescript": "^5.9.0"
+	}
+}

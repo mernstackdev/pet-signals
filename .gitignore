@@ -26,5 +26,12 @@ pnpm-debug.log*
 # cloudflare / wrangler local state
 .wrangler/
 .vscode
+
+# sanity studio (cms/) — local state, build output and secrets
+cms/.sanity/
+cms/dist/
+cms/.env
+cms/.env.local
+cms/backups/
 .commandcode
 drafts/

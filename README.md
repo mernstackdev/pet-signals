@@ -200,12 +200,37 @@ Cloudflare Pages works too — build command `npm run build`, output directory `
 deploy command. To use it, change `wrangler.toml` back to
 `pages_build_output_dir = "./dist"` and deploy with `wrangler pages deploy`.
 
-## Migrating to Sanity (next step)
+## Content backend (Sanity)
 
-Pages read content **only** through `src/lib/content.ts` and `src/lib/schema.ts`. To move to Sanity:
+The CMS lives in **[`cms/`](./cms/README.md)** — a standalone Sanity Studio with its own
+`package.json`. It is deliberately **not** part of this frontend build:
 
-1. Replace the `glob()` loaders in `src/content.config.ts` with a Sanity loader (for example `@sanity/astro` or a custom Content Layer loader).
-2. Map Sanity documents onto the same frontmatter shape used here.
-3. Reuse the existing schema builders and page templates unchanged.
+- only `src/` is built into `dist/` — nothing under `cms/` is ever bundled
+- `cms` is excluded in `tsconfig.json`, so the Studio is not type-checked with the site
+- Tailwind's source scan excludes it via `@source not "../../cms"` in `src/styles/global.css`
 
-Keeping the query layer in `src/lib/content.ts` means the templates do not need to change when the content source does.
+Run it separately:
+
+```sh
+cd cms && npm install && cp .env.example .env   # then npm run dev
+```
+
+It models **posts** (rich Portable Text: tables, lists, images with alt text, quotes,
+callouts, code), **authors**, **categories**, a **site-settings** singleton, and the full
+**SEO field set** (meta title/description, canonical, noindex, Open Graph, Twitter, FAQ,
+How-To, keywords). See [`cms/README.md`](./cms/README.md) for setup, the SEO field
+reference, and how each field maps to JSON-LD.
+
+### Wiring the frontend to Sanity
+
+Pages read content **only** through `src/lib/content.ts` and `src/lib/schema.ts`, so the swap
+is contained:
+
+1. Add `@sanity/client` (+ `@sanity/image-url`, `@portabletext/to-html`) to this project.
+2. Replace the `glob()` loaders in `src/content.config.ts` with a Sanity loader that maps
+   documents onto the same shape the templates expect.
+3. Render Portable Text with components for `imageWithAlt`, `table`, `callout`, `pullQuote`
+   and `codeBlock`.
+4. Point the JSON-LD builders at the `faq` / `howTo` fields.
+
+No page templates need to change.

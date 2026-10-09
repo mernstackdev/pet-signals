@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* The Sanity Studio lives in cms/ and is a separate app — keep it out of the
+   frontend CSS scan so it can never influence the built stylesheet. */
+@source not "../../cms";
+
 @theme {
 	--font-sans:
 		ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
