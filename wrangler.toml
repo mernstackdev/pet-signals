@@ -1,11 +1,16 @@
-# Cloudflare Pages project configuration.
-# Used by `wrangler pages deploy` / `wrangler pages dev`, and by Git-connected
-# Pages projects that read build settings from the repo.
+# Cloudflare Workers configuration — static assets.
 #
-# Set the production canonical origin in the Pages dashboard (Settings →
-# Environment variables) for BOTH the production and preview environments:
-#   SITE_URL=https://petsignals.info
-#   NODE_VERSION=22.12.0
+# `dist/` is deployed as a static-assets Worker, so the default Workers Builds
+# deploy command (`npx wrangler deploy`) works with no Worker script.
+#
+# IMPORTANT: `name` must match the Worker name in the Cloudflare dashboard,
+# otherwise the build deploys to a different Worker than the one with the domain.
 name = "pet-signals"
-pages_build_output_dir = "./dist"
 compatibility_date = "2026-01-01"
+
+[assets]
+directory = "./dist"
+# "/about" → "/about/" so URLs match the canonical URLs Astro emits.
+html_handling = "auto-trailing-slash"
+# Serve dist/404.html for unknown paths.
+not_found_handling = "404-page"

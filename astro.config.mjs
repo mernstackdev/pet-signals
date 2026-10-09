@@ -105,6 +105,17 @@ const fileEnv = loadEnv(
 const SITE = resolveSite(fileEnv);
 const lastmodByUrl = buildLastmodMap();
 
+const isCI = Boolean(process.env.CI || process.env.CF_PAGES || process.env.WORKERS_CI);
+const explicitSite = process.env.SITE_URL || process.env.PUBLIC_SITE_URL || fileEnv.SITE_URL;
+console.log(`[pet-signals] Site origin: ${SITE}`);
+if (isCI && !explicitSite) {
+	console.warn(
+		'[pet-signals] WARNING: no SITE_URL set in the build environment. Canonical URLs,\n' +
+			'the sitemap, RSS and llms.txt will use the localhost fallback. Set SITE_URL\n' +
+			'(e.g. https://petsignals.info) as a build variable so production URLs are correct.',
+	);
+}
+
 // https://astro.build/config
 export default defineConfig({
 	site: SITE,
