@@ -19,6 +19,8 @@ export interface Props {
 	jsonLd?: Record<string, unknown>;
 	prevUrl?: string;
 	nextUrl?: string;
+	/** Absolute URL of this page's Markdown version (llms.txt v2 rel="alternate"). */
+	markdownUrl?: string;
 }
 
 const {
@@ -37,6 +39,7 @@ const {
 	jsonLd,
 	prevUrl,
 	nextUrl,
+	markdownUrl,
 } = Astro.props;
 
 const brandedTitle = title ? `${title} | ${SITE.name}` : SITE.title;
@@ -95,6 +98,8 @@ const json = jsonLd ? JSON.stringify(jsonLd).replace(/</g, '\\u003c') : undefine
 	href={absoluteUrl('/rss.xml')}
 />
 <link rel="sitemap" type="application/xml" href={absoluteUrl('/sitemap-index.xml')} />
+{markdownUrl && <link rel="alternate" type="text/markdown" href={markdownUrl} />}
+<link rel="describedby" href={absoluteUrl('/llms.txt')} type="text/plain" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
 {json && <script type="application/ld+json" set:html={json} />}

@@ -3,29 +3,62 @@ import type { MarkdownHeading } from 'astro';
 
 interface Props {
 	headings: MarkdownHeading[];
+	variant?: 'desktop' | 'mobile';
 	class?: string;
 }
 
-const { headings, class: className } = Astro.props;
+const { headings, variant = 'desktop', class: className } = Astro.props;
 const items = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
+
+const linkClass =
+	'toc-link -ml-px block border-l border-transparent py-1 pr-2 text-muted transition hover:border-brand-400 hover:text-brand-700';
 ---
 
 {
-	items.length > 2 && (
-		<nav aria-label="Table of contents" class:list={['text-sm', className]}>
+	items.length > 2 && variant === 'desktop' && (
+		<nav aria-label="Table of contents" data-toc class:list={['text-sm', className]}>
 			<h2 class="text-xs font-semibold uppercase tracking-wide text-muted">On this page</h2>
-			<ol class="mt-3 space-y-2 border-l border-stone-200">
+			<ol class="mt-3 space-y-0.5 border-l border-stone-200">
 				{items.map((heading) => (
-					<li class:list={[heading.depth === 3 ? 'pl-6' : 'pl-4']}>
-						<a
-							href={`#${heading.slug}`}
-							class="-ml-px block border-l border-transparent text-muted hover:border-brand-400 hover:text-brand-700"
-						>
+					<li>
+						<a href={`#${heading.slug}`} class:list={[linkClass, heading.depth === 3 ? 'pl-6' : 'pl-4']}>
 							{heading.text}
 						</a>
 					</li>
 				))}
 			</ol>
 		</nav>
+	)
+}
+
+{
+	items.length > 2 && variant === 'mobile' && (
+		<details
+			data-toc
+			class:list={['group rounded-card bg-white ring-1 ring-stone-200', className]}
+		>
+			<summary class="flex cursor-pointer list-none items-center justify-between px-5 py-4 font-semibold text-ink [&::-webkit-details-marker]:hidden">
+				On this page
+				<svg
+					viewBox="0 0 20 20"
+					class="h-4 w-4 shrink-0 text-muted transition group-open:rotate-180"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.8"
+					aria-hidden="true"
+				>
+					<path d="m6 8 4 4 4-4" stroke-linecap="round" stroke-linejoin="round"></path>
+				</svg>
+			</summary>
+			<ol class="space-y-0.5 border-t border-stone-100 px-5 py-4">
+				{items.map((heading) => (
+					<li>
+						<a href={`#${heading.slug}`} class:list={[linkClass, heading.depth === 3 ? 'pl-4' : 'pl-0']}>
+							{heading.text}
+						</a>
+					</li>
+				))}
+			</ol>
+		</details>
 	)
 }

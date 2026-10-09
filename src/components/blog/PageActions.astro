@@ -1,0 +1,137 @@
+---
+interface Props {
+	markdownUrl: string;
+	canonical: string;
+	title: string;
+	llmsUrl?: string;
+	class?: string;
+}
+
+const { markdownUrl, canonical, title, llmsUrl = '/llms.txt', class: className } = Astro.props;
+
+const prompt = `Read ${canonical} so I can ask questions about it.`;
+const q = encodeURIComponent(prompt);
+const tools = [
+	{ name: 'ChatGPT', href: `https://chatgpt.com/?q=${q}` },
+	{ name: 'Claude', href: `https://claude.ai/new?q=${q}` },
+	{ name: 'Perplexity', href: `https://www.perplexity.ai/search?q=${q}` },
+	{ name: 'Grok', href: `https://grok.com/?q=${q}` },
+];
+
+const trigger =
+	'inline-flex cursor-pointer list-none items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-sm font-medium text-ink ring-1 ring-stone-300 transition hover:bg-stone-50 [&::-webkit-details-marker]:hidden';
+const menu =
+	'absolute left-0 z-30 mt-2 w-56 overflow-hidden rounded-xl bg-white p-1 text-left shadow-lg ring-1 ring-stone-200';
+const menuItem =
+	'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink transition hover:bg-brand-50 hover:text-brand-800';
+---
+
+<div
+	class:list={['not-prose flex flex-wrap items-center gap-2', className]}
+	data-page-actions
+	data-markdown-url={markdownUrl}
+	data-canonical={canonical}
+	data-title={title}
+>
+	<details class="group relative" data-menu>
+		<summary class={trigger}>
+			<svg viewBox="0 0 20 20" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+				<rect x="6" y="6" width="10" height="11" rx="2"></rect>
+				<path d="M4 13.5V5a2 2 0 0 1 2-2h8" stroke-linecap="round"></path>
+			</svg>
+			Copy page
+			<svg viewBox="0 0 20 20" class="h-3.5 w-3.5 shrink-0 transition group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+				<path d="m6 8 4 4 4-4" stroke-linecap="round" stroke-linejoin="round"></path>
+			</svg>
+		</summary>
+		<div class={menu}>
+			<button type="button" data-copy="markdown" class={menuItem}>
+				<svg viewBox="0 0 20 20" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="6" y="6" width="10" height="11" rx="2"></rect><path d="M4 13.5V5a2 2 0 0 1 2-2h8" stroke-linecap="round"></path></svg>
+				Copy as Markdown
+			</button>
+			<a href={markdownUrl} target="_blank" rel="noopener" class={menuItem}>
+				<svg viewBox="0 0 20 20" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 3h6l4 4v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"></path><path d="M11 3v4h4" stroke-linejoin="round"></path></svg>
+				View as Markdown
+			</a>
+			<button type="button" data-copy="link" class={menuItem}>
+				<svg viewBox="0 0 20 20" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8.5 11.5 11.5 8.5M7.5 9.5 6 11a2.1 2.1 0 0 0 3 3l1.5-1.5M12.5 10.5 14 9a2.1 2.1 0 0 0-3-3l-1.5 1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+				Copy link
+			</button>
+		</div>
+	</details>
+
+	<details class="group relative" data-menu>
+		<summary class={trigger}>
+			<svg viewBox="0 0 20 20" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M10 3.5 11.7 8l4.3.3-3.3 2.8 1 4.4L10 13.2 6.3 15.5l1-4.4L4 8.3 8.3 8 10 3.5Z" stroke-linejoin="round"></path></svg>
+			Open in
+			<svg viewBox="0 0 20 20" class="h-3.5 w-3.5 shrink-0 transition group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 8 4 4 4-4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+		</summary>
+		<div class={menu}>
+			{
+				tools.map((tool) => (
+					<a href={tool.href} target="_blank" rel="noopener" class={menuItem}>
+						{tool.name}
+						<svg viewBox="0 0 20 20" class="ml-auto h-3.5 w-3.5 shrink-0 text-stone-400" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 5h7v7M15 5l-7 7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+					</a>
+				))
+			}
+		</div>
+	</details>
+
+	<a
+		href={llmsUrl}
+		class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium text-muted transition hover:text-brand-700"
+	>
+		<svg viewBox="0 0 20 20" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 4h8M6 8h8M6 12h5" stroke-linecap="round"></path><rect x="3" y="2.5" width="14" height="15" rx="2"></rect></svg>
+		llms.txt
+	</a>
+
+	<span data-copy-status role="status" aria-live="polite" class="sr-only"></span>
+</div>
+
+<script>
+	document.querySelectorAll('[data-page-actions]').forEach((root) => {
+		const markdownUrl = root.dataset.markdownUrl;
+		const canonical = root.dataset.canonical;
+		const status = root.querySelector('[data-copy-status]');
+		const menus = Array.from(root.querySelectorAll('details[data-menu]'));
+
+		const closeAll = () => menus.forEach((menu) => (menu.open = false));
+
+		menus.forEach((menu) => {
+			menu.addEventListener('toggle', () => {
+				if (menu.open) menus.forEach((other) => { if (other !== menu) other.open = false; });
+			});
+		});
+
+		root.querySelectorAll('[data-copy]').forEach((button) => {
+			button.addEventListener('click', async () => {
+				const kind = button.dataset.copy;
+				try {
+					let text = canonical;
+					if (kind === 'markdown') {
+						const response = await fetch(markdownUrl);
+						text = await response.text();
+					}
+					await navigator.clipboard.writeText(text);
+					if (status) status.textContent = kind === 'markdown' ? 'Markdown copied' : 'Link copied';
+					const original = button.textContent;
+					button.textContent = 'Copied!';
+					setTimeout(() => {
+						button.textContent = original;
+						closeAll();
+					}, 900);
+				} catch {
+					window.open(markdownUrl, '_blank', 'noopener');
+				}
+			});
+		});
+
+		document.addEventListener('click', (event) => {
+			if (!root.contains(event.target)) closeAll();
+		});
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape') closeAll();
+		});
+	});
+</script>

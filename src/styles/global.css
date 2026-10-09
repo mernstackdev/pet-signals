@@ -53,3 +53,26 @@
 		}
 	}
 }
+
+/* Heading anchor links (injected client-side) */
+.prose .heading-anchor {
+	margin-left: 0.4rem;
+	color: var(--color-brand-400);
+	text-decoration: none;
+	opacity: 0;
+	transition: opacity 0.15s ease;
+}
+
+.prose h2:hover .heading-anchor,
+.prose h3:hover .heading-anchor,
+.prose .heading-anchor:focus-visible {
+	opacity: 1;
+}
+
+/* Active table-of-contents link (scroll spy) */
+.toc-link.toc-active {
+	color: var(--color-brand-700);
+	font-weight: 600;
+	border-color: var(--color-brand-400);
+}
+

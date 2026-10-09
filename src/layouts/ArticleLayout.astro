@@ -12,9 +12,11 @@ import AuthorCard from '../components/blog/AuthorCard.astro';
 import HowToSteps from '../components/blog/HowToSteps.astro';
 import FaqSection from '../components/blog/FaqSection.astro';
 import RelatedPosts from '../components/blog/RelatedPosts.astro';
+import PageActions from '../components/blog/PageActions.astro';
+import ArticleEnhancements from '../components/blog/ArticleEnhancements.astro';
 import { getCluster } from '../lib/clusters';
 import { articleGraph } from '../lib/schema';
-import { absoluteUrl, canonicalUrl } from '../lib/seo';
+import { absoluteUrl, canonicalUrl, markdownUrlFor } from '../lib/seo';
 import type { Author, Post } from '../lib/content';
 
 interface Props {
@@ -27,6 +29,7 @@ interface Props {
 const { post, author, headings, related } = Astro.props;
 const cluster = getCluster(post.data.cluster)!;
 const canonical = post.data.seo?.canonical ?? canonicalUrl(`/${post.data.cluster}/${post.id}/`);
+const markdownUrl = markdownUrlFor(canonical);
 const imageUrl = post.data.heroImage ? absoluteUrl(post.data.heroImage.src) : undefined;
 
 const jsonLd = articleGraph({
@@ -59,12 +62,14 @@ const breadcrumbs = [
 	section={cluster.name}
 	tags={post.data.tags}
 	jsonLd={jsonLd}
+	markdownUrl={markdownUrl}
 >
+	<ArticleEnhancements />
 	<Container size="narrow" class="pt-8">
 		<Breadcrumbs items={breadcrumbs} />
 	</Container>
 
-	<article class="mt-6">
+	<article class="mt-6" data-article>
 		<Container size="narrow">
 			<header>
 				<p class="text-sm font-semibold uppercase tracking-wide text-brand-700">
@@ -76,6 +81,10 @@ const breadcrumbs = [
 				<p class="mt-4 text-lg text-muted">{post.data.description}</p>
 				<PostMeta post={post} author={author} class="mt-5" />
 			</header>
+
+			<div class="mt-6">
+				<PageActions markdownUrl={markdownUrl} canonical={canonical} title={post.data.title} />
+			</div>
 
 			{
 				post.data.heroImage && (
@@ -99,6 +108,7 @@ const breadcrumbs = [
 		<Container class="mt-12">
 			<div class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_16rem]">
 				<div>
+					<TableOfContents headings={headings} variant="mobile" class="mb-8 lg:hidden" />
 					<Prose>
 						<slot />
 					</Prose>

@@ -1,0 +1,69 @@
+---
+/** Reading progress bar, back-to-top link, heading anchors and TOC scroll spy. */
+---
+
+<div class="fixed inset-x-0 top-0 z-50 h-0.5 bg-transparent" aria-hidden="true">
+	<div data-reading-progress class="h-full w-0 bg-brand-500 transition-[width] duration-100 ease-out"></div>
+</div>
+
+<a
+	href="#main"
+	data-back-to-top
+	hidden
+	class="fixed bottom-6 right-6 z-40 inline-flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white shadow-lg transition hover:bg-stone-700"
+>
+	<svg viewBox="0 0 20 20" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+		<path d="M10 15V5M5 10l5-5 5 5" stroke-linecap="round" stroke-linejoin="round"></path>
+	</svg>
+	Back to top
+</a>
+
+<script>
+	const article = document.querySelector('[data-article]');
+
+	// Clickable heading anchors
+	if (article) {
+		article.querySelectorAll('h2[id], h3[id]').forEach((heading) => {
+			const anchor = document.createElement('a');
+			anchor.href = `#${heading.id}`;
+			anchor.className = 'heading-anchor';
+			anchor.setAttribute('aria-hidden', 'true');
+			anchor.setAttribute('tabindex', '-1');
+			anchor.textContent = '#';
+			heading.appendChild(anchor);
+		});
+	}
+
+	// TOC scroll spy
+	const tocLinks = Array.from(document.querySelectorAll('[data-toc] a[href^="#"]'));
+	const targets = tocLinks
+		.map((link) => document.getElementById(decodeURIComponent(link.hash.slice(1))))
+		.filter((el) => el);
+	if (targets.length) {
+		const setActive = (id) => {
+			tocLinks.forEach((link) => link.classList.toggle('toc-active', link.hash === `#${id}`));
+		};
+		const observer = new IntersectionObserver(
+			(entries) => {
+				const visible = entries
+					.filter((entry) => entry.isIntersecting)
+					.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+				if (visible[0]) setActive(visible[0].target.id);
+			},
+			{ rootMargin: '-90px 0px -70% 0px', threshold: 0 },
+		);
+		targets.forEach((target) => observer.observe(target));
+	}
+
+	// Reading progress + back-to-top visibility
+	const bar = document.querySelector('[data-reading-progress]');
+	const backToTop = document.querySelector('[data-back-to-top]');
+	const onScroll = () => {
+		const max = document.documentElement.scrollHeight - window.innerHeight;
+		const pct = max > 0 ? Math.min(100, (window.scrollY / max) * 100) : 0;
+		if (bar) bar.style.width = `${pct}%`;
+		if (backToTop) backToTop.hidden = window.scrollY < 800;
+	};
+	onScroll();
+	window.addEventListener('scroll', onScroll, { passive: true });
+</script>

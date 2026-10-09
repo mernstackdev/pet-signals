@@ -1,6 +1,6 @@
 ---
 import type { Author, Post } from '../../lib/content';
-import { formatDate, isoDate } from '../../lib/seo';
+import { formatDate, isoDate, readingTime } from '../../lib/seo';
 
 interface Props {
 	post: Post;
@@ -11,6 +11,7 @@ interface Props {
 const { post, author, class: className } = Astro.props;
 const updated = post.data.updatedDate;
 const showUpdated = updated && isoDate(updated) !== isoDate(post.data.publishDate);
+const minutes = readingTime(post.body ?? '');
 ---
 
 <div class:list={['flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted', className]}>
@@ -34,4 +35,6 @@ const showUpdated = updated && isoDate(updated) !== isoDate(post.data.publishDat
 			</>
 		)
 	}
+	<span aria-hidden="true">·</span>
+	<span>{minutes} min read</span>
 </div>
