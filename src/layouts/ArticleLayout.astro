@@ -69,21 +69,27 @@ const breadcrumbs = [
 	<ArticleEnhancements />
 	<ReadMode />
 
-	<Container size="narrow" class="pt-6 sm:pt-8" data-chrome>
+	<Container size="narrow" class="hidden pt-8 sm:block" data-chrome>
 		<Breadcrumbs items={breadcrumbs} />
 	</Container>
 
-	<article class="mt-5 sm:mt-6" data-article>
+	<article class="mt-4 sm:mt-6" data-article>
 		<Container size="narrow" data-article-inner>
 			<header>
-				<p class="text-sm font-semibold uppercase tracking-wide text-brand-700">
-					<a href={`/${cluster.slug}/`} class="hover:text-brand-800">{cluster.name}</a>
-				</p>
-				<h1 class="mt-3 text-3xl font-extrabold leading-tight tracking-tight sm:mt-4 sm:text-4xl">
+				<a
+					href={`/${cluster.slug}/`}
+					class="inline-flex items-center gap-1 text-sm font-semibold uppercase tracking-wide text-brand-700 hover:text-brand-800 sm:hidden"
+				>
+					<svg viewBox="0 0 20 20" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+						<path d="M12 5 7 10l5 5" stroke-linecap="round" stroke-linejoin="round"></path>
+					</svg>
+					{cluster.name}
+				</a>
+				<h1 class="mt-3 text-2xl font-extrabold leading-tight tracking-tight sm:mt-0 sm:text-4xl">
 					{post.data.title}
 				</h1>
-				<p class="mt-3 text-lg text-muted sm:mt-4">{post.data.description}</p>
-				<PostMeta post={post} class="mt-4 sm:mt-5" />
+				<p class="mt-3 text-base text-muted sm:mt-4 sm:text-lg">{post.data.description}</p>
+				<PostMeta post={post} class="mt-3 sm:mt-5" />
 			</header>
 
 			<div class="mt-6" data-chrome>

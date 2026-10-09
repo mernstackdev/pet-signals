@@ -29,7 +29,7 @@ const jsonLd = homeGraph({ url, featured });
 				<p class="text-sm font-semibold uppercase tracking-wide text-brand-700">
 					Pet behavior, habits &amp; how-to guides
 				</p>
-				<h1 class="mt-4 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">
+				<h1 class="mt-4 text-3xl font-extrabold leading-tight tracking-tight sm:text-5xl">
 					Read your pet like a pro
 				</h1>
 				<p class="mt-6 text-lg text-muted">
@@ -47,7 +47,7 @@ const jsonLd = homeGraph({ url, featured });
 
 	<Container class="mt-14">
 		<section id="topics" aria-labelledby="topics-heading" class="scroll-mt-24">
-			<h2 id="topics-heading" class="text-2xl font-extrabold tracking-tight">Explore by topic</h2>
+			<h2 id="topics-heading" class="text-xl font-extrabold tracking-tight sm:text-2xl">Explore by topic</h2>
 			<div class="mt-6 grid gap-6 lg:grid-cols-3">
 				{
 					clusterGroups.map(({ cluster, posts }) => (
@@ -60,7 +60,7 @@ const jsonLd = homeGraph({ url, featured });
 
 	<Container class="mt-16">
 		<section aria-labelledby="featured-heading">
-			<h2 id="featured-heading" class="text-2xl font-extrabold tracking-tight">Featured guides</h2>
+			<h2 id="featured-heading" class="text-xl font-extrabold tracking-tight sm:text-2xl">Featured guides</h2>
 			<div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 				{featured.map((post) => <ArticleCard post={post} />)}
 			</div>
@@ -71,7 +71,7 @@ const jsonLd = homeGraph({ url, featured });
 		latest.length > 0 && (
 			<Container class="mt-16">
 				<section aria-labelledby="latest-heading">
-					<h2 id="latest-heading" class="text-2xl font-extrabold tracking-tight">Latest guides</h2>
+					<h2 id="latest-heading" class="text-xl font-extrabold tracking-tight sm:text-2xl">Latest guides</h2>
 					<div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 						{latest.map((post) => (
 							<ArticleCard post={post} />

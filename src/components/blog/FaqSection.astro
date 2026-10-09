@@ -10,7 +10,7 @@ const { faq, class: className } = Astro.props;
 {
 	faq.length > 0 && (
 		<section class:list={['mt-12', className]} aria-labelledby="faq-heading">
-			<h2 id="faq-heading" class="text-2xl font-extrabold tracking-tight">
+			<h2 id="faq-heading" class="text-xl font-extrabold tracking-tight sm:text-2xl">
 				Frequently asked questions
 			</h2>
 			<dl class="mt-6 divide-y divide-stone-200">

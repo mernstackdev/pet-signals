@@ -42,7 +42,7 @@ const otherClusters = CLUSTERS.filter((item) => item.slug !== cluster.slug);
 	<Container class="mt-6">
 		<header class="max-w-3xl">
 			<p class="text-sm font-semibold uppercase tracking-wide text-brand-700">Topic</p>
-			<h1 class="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">{cluster.title}</h1>
+			<h1 class="mt-3 text-2xl font-extrabold tracking-tight sm:text-4xl">{cluster.title}</h1>
 			<p class="mt-4 text-lg text-muted">{cluster.intro}</p>
 		</header>
 	</Container>
@@ -66,7 +66,7 @@ const otherClusters = CLUSTERS.filter((item) => item.slug !== cluster.slug);
 
 	<Container class="mt-16">
 		<section aria-labelledby="more-topics">
-			<h2 id="more-topics" class="text-2xl font-extrabold tracking-tight">Explore other topics</h2>
+			<h2 id="more-topics" class="text-xl font-extrabold tracking-tight sm:text-2xl">Explore other topics</h2>
 			<ul class="mt-6 grid gap-4 sm:grid-cols-2">
 				{
 					otherClusters.map((item) => (
