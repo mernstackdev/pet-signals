@@ -90,8 +90,29 @@ Add authors as JSON files in `src/content/authors/`.
 - **Canonical URLs** are normalised (query stripped, trailing slash enforced) and always match `og:url`.
 - **`public/robots.txt`** allows all crawlers, explicitly allows AI crawlers, and points to the sitemap.
 - **Sitemap** is generated with `lastmod` derived from git commit times. Excludes `/404`.
-- **`/rss.xml`** is a full-content feed; **`/llms.txt`** gives AI systems a map of the site.
+- **`/rss.xml`** is a full-content feed.
 - Every page has exactly one `<h1>`, a logical heading order, and visible breadcrumbs that match the `BreadcrumbList` schema.
+
+## LLM / AI features
+
+Every article is also published as clean Markdown and advertised for AI agents, following the **llms.txt v2** discovery conventions (August 2026).
+
+- **`/<cluster>/<slug>.md`** — a Markdown version of each article (`text/markdown`) with byline, body, how-to steps, and FAQ. Excluded from the sitemap.
+- **`<link rel="alternate" type="text/markdown">`** on each article points to that Markdown URL.
+- **`<link rel="describedby" href="/llms.txt">`** tells agents which llms.txt covers the page.
+- **`/llms.txt`** lists topics and links each article to its Markdown version; **`/llms-full.txt`** bundles every article into one document.
+- **Page actions bar** at the top of each article:
+  - **Copy page** → *Copy as Markdown* (fetches the `.md` URL to the clipboard), *View as Markdown*, *Copy link*.
+  - **Open in** → ChatGPT, Claude, Perplexity, or Grok, pre-filled with a prompt pointing at the article.
+  - **llms.txt** → the AI resource index.
+
+## Reading experience
+
+- Refined `prose-lg` typography with a comfortable measure and underlined, brand-coloured links.
+- Sticky **table of contents** on desktop with **scroll-spy** highlighting, plus a collapsible **On this page** panel on mobile.
+- **Reading progress bar** and a **Back to top** button.
+- **Clickable heading anchors** on every `##` / `###` for easy deep-linking.
+- Byline shows published / updated dates and an estimated reading time.
 
 ## Deploying
 
