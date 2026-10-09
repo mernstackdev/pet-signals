@@ -94,6 +94,9 @@ export default defineConfig({
 	site: SITE,
 	trailingSlash: 'always',
 	build: { format: 'directory' },
+	// The dev toolbar injects its own links and scripts, which pollutes
+	// Lighthouse runs against `astro dev`. Disable it so dev audits are meaningful.
+	devToolbar: { enabled: false },
 	redirects: {
 		// Add 301s here when a published slug changes, e.g.
 		// '/pet-behavior/old-slug/': '/pet-behavior/new-slug/',

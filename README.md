@@ -134,6 +134,19 @@ SITE_URL=https://your-domain.com npm run build
 
 Add 301 redirects under `redirects` in `astro.config.mjs` whenever a published slug changes.
 
+## Testing performance and SEO
+
+Run Lighthouse against the **production build**, never the dev server:
+
+```sh
+npm run build && npm run preview   # then audit http://localhost:4321
+```
+
+`astro dev` serves unminified CSS/JS, an HMR client, and (when enabled) the Astro dev
+toolbar — which on its own injects a non-descriptive "Learn more" link and tanks the
+performance score. The dev toolbar is disabled in `astro.config.mjs` so dev audits
+stay meaningful, but the production build is the number that matters.
+
 ## Migrating to Sanity (next step)
 
 Pages read content **only** through `src/lib/content.ts` and `src/lib/schema.ts`. To move to Sanity:

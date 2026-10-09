@@ -29,7 +29,7 @@ const path = Astro.url.pathname;
 			</ul>
 		</nav>
 
-		<details class="group relative sm:hidden">
+		<details class="group sm:hidden">
 			<summary
 				class="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-full text-ink ring-1 ring-stone-300 transition hover:bg-stone-50 [&::-webkit-details-marker]:hidden"
 			>
@@ -57,7 +57,7 @@ const path = Astro.url.pathname;
 			</summary>
 			<nav
 				aria-label="Mobile"
-				class="absolute inset-x-0 top-full border-b border-stone-200 bg-cream shadow-lg"
+				class="absolute inset-x-0 top-full z-50 border-b border-stone-200 bg-cream shadow-lg"
 			>
 				<ul class="mx-auto max-w-6xl space-y-1 px-4 py-3 sm:px-6">
 					{

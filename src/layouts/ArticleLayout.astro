@@ -105,6 +105,8 @@ const breadcrumbs = [
 							widths={[600, 1200]}
 							sizes="(min-width: 768px) 768px, 100vw"
 							loading="eager"
+							fetchpriority="high"
+							decoding="async"
 							class="-mx-4 w-[calc(100%+2rem)] rounded-none sm:mx-0 sm:w-full sm:rounded-card"
 						/>
 						{post.data.heroImageAlt && (
