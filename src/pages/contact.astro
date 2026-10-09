@@ -1,0 +1,53 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/global/Breadcrumbs.astro';
+import Container from '../components/ui/Container.astro';
+import Prose from '../components/ui/Prose.astro';
+import { pageGraph } from '../lib/schema';
+import { canonicalUrl } from '../lib/seo';
+import { SITE } from '../lib/site';
+
+const url = canonicalUrl('/contact/');
+const title = 'Contact Pet Signals';
+const description =
+	'Get in touch with the Pet Signals team for questions, corrections, or partnership enquiries. We read every message.';
+
+const jsonLd = pageGraph({
+	url,
+	type: 'ContactPage',
+	title,
+	description,
+	breadcrumbs: [{ name: 'Home', url: '/' }, { name: 'Contact' }],
+});
+---
+
+<BaseLayout title="Contact" description={description} canonical={url} jsonLd={jsonLd}>
+	<Container size="narrow" class="pt-8">
+		<Breadcrumbs items={[{ name: 'Home', url: '/' }, { name: 'Contact' }]} />
+	</Container>
+
+	<Container size="narrow" class="mt-6">
+		<h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">Contact us</h1>
+
+		<Prose class="mt-6">
+			<p>
+				Questions, corrections, and story ideas are all welcome. Email is the fastest way to reach us
+				and we read every message.
+			</p>
+		</Prose>
+
+		<address class="mt-8 not-italic">
+			<p class="text-sm font-semibold uppercase tracking-wide text-muted">Email</p>
+			<p class="mt-1 text-lg">
+				<a href={`mailto:${SITE.email}`} class="font-medium text-brand-700 hover:text-brand-800">
+					{SITE.email}
+				</a>
+			</p>
+		</address>
+
+		<p class="mt-8 text-sm text-muted">
+			Please note that we cannot provide individual veterinary advice. If your pet is unwell or in pain,
+			contact your veterinarian or an emergency animal hospital.
+		</p>
+	</Container>
+</BaseLayout>

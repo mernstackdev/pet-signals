@@ -1,0 +1,54 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/global/Breadcrumbs.astro';
+import Container from '../../components/ui/Container.astro';
+import ArticleCard from '../../components/blog/ArticleCard.astro';
+import { getPosts } from '../../lib/content';
+import { itemListNode, pageGraph } from '../../lib/schema';
+import { canonicalUrl } from '../../lib/seo';
+
+const posts = await getPosts();
+const url = canonicalUrl('/articles/');
+const title = 'All Pet Behavior, Habits & How-To Guides';
+const description =
+	'Every Pet Signals article in one place: pet behavior explainers, daily habit guides, and step-by-step how-to instructions for dog and cat owners.';
+
+const jsonLd = pageGraph({
+	url,
+	type: 'CollectionPage',
+	title,
+	description,
+	breadcrumbs: [{ name: 'Home', url: '/' }, { name: 'All Articles' }],
+	nodes: [itemListNode({ url, name: 'All articles', posts })],
+});
+---
+
+<BaseLayout title="All Articles" description={description} canonical={url} jsonLd={jsonLd}>
+	<Container class="pt-8">
+		<Breadcrumbs items={[{ name: 'Home', url: '/' }, { name: 'All Articles' }]} />
+	</Container>
+
+	<Container class="mt-6">
+		<header class="max-w-3xl">
+			<h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">All articles</h1>
+			<p class="mt-4 text-lg text-muted">
+				Every guide we have published, newest first — pet behavior, daily habits, and step-by-step
+				how-to instructions.
+			</p>
+		</header>
+	</Container>
+
+	<Container class="mt-12">
+		{
+			posts.length > 0 ? (
+				<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+					{posts.map((post) => (
+						<ArticleCard post={post} heading="h2" />
+					))}
+				</div>
+			) : (
+				<p class="text-muted">No articles yet. Check back soon.</p>
+			)
+		}
+	</Container>
+</BaseLayout>

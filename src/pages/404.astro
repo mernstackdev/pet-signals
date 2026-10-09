@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/ui/Container.astro';
+import Button from '../components/ui/Button.astro';
+import { CLUSTERS } from '../lib/clusters';
+---
+
+<BaseLayout
+	title="Page not found"
+	description="The page you were looking for could not be found on Pet Signals."
+	noindex={true}
+>
+	<Container size="narrow" class="py-20 text-center">
+		<p class="text-sm font-semibold uppercase tracking-wide text-brand-700">Error 404</p>
+		<h1 class="mt-4 text-4xl font-extrabold tracking-tight">We could not find that page</h1>
+		<p class="mx-auto mt-4 max-w-md text-lg text-muted">
+			The link may be broken or the page may have moved. Try one of these instead.
+		</p>
+
+		<div class="mt-8 flex flex-wrap justify-center gap-3">
+			<Button href="/">Back to home</Button>
+			<Button href="/articles/" variant="secondary">Browse all articles</Button>
+		</div>
+
+		<nav aria-label="Topics" class="mt-10">
+			<ul class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
+				{
+					CLUSTERS.map((cluster) => (
+						<li>
+							<a href={`/${cluster.slug}/`} class="text-muted hover:text-brand-700">
+								{cluster.name}
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</nav>
+	</Container>
+</BaseLayout>

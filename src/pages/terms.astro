@@ -1,0 +1,75 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/global/Breadcrumbs.astro';
+import Container from '../components/ui/Container.astro';
+import Prose from '../components/ui/Prose.astro';
+import { pageGraph } from '../lib/schema';
+import { canonicalUrl } from '../lib/seo';
+import { SITE } from '../lib/site';
+
+const url = canonicalUrl('/terms/');
+const title = 'Terms of Use';
+const description =
+	'The terms that govern your use of Pet Signals, including the limits of our educational pet care content.';
+
+const jsonLd = pageGraph({
+	url,
+	title,
+	description,
+	breadcrumbs: [{ name: 'Home', url: '/' }, { name: 'Terms' }],
+});
+---
+
+<BaseLayout title="Terms of Use" description={description} canonical={url} jsonLd={jsonLd}>
+	<Container size="narrow" class="pt-8">
+		<Breadcrumbs items={[{ name: 'Home', url: '/' }, { name: 'Terms' }]} />
+	</Container>
+
+	<Container size="narrow" class="mt-6">
+		<h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">Terms of use</h1>
+		<p class="mt-3 text-sm text-muted">
+			Last updated: <time datetime="2026-10-09">9 October 2026</time>
+		</p>
+
+		<Prose class="mt-6">
+			<p>
+				By using Pet Signals you agree to these terms. If you do not agree with them, please do not use
+				the site.
+			</p>
+
+			<h2>Educational content only</h2>
+			<p>
+				Pet Signals publishes general information about pet behavior, habits, and care. It is not
+				veterinary advice, does not create a veterinarian-client-patient relationship, and must not be
+				used to diagnose or treat any animal. Always consult a licensed veterinarian about your pet's
+				health.
+			</p>
+
+			<h2>No guarantee of results</h2>
+			<p>
+				Animals respond differently to training and routines. We describe approaches that work for many
+				pets, but we cannot guarantee any particular outcome, and you are responsible for how you apply
+				the information to your own pet.
+			</p>
+
+			<h2>Intellectual property</h2>
+			<p>
+				All text, images, and other content on this site belong to {SITE.name} unless stated otherwise.
+				You may link to our pages and quote short excerpts with attribution. You may not republish our
+				content in full without written permission.
+			</p>
+
+			<h2>Third-party links</h2>
+			<p>
+				We sometimes link to other websites. We are not responsible for their content, products, or
+				privacy practices.
+			</p>
+
+			<h2>Changes</h2>
+			<p>
+				We may update these terms from time to time. Continued use of the site after a change means you
+				accept the updated terms.
+			</p>
+		</Prose>
+	</Container>
+</BaseLayout>

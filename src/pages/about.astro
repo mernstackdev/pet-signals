@@ -1,0 +1,72 @@
+---
+import { getCollection } from 'astro:content';
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/global/Breadcrumbs.astro';
+import Container from '../components/ui/Container.astro';
+import Prose from '../components/ui/Prose.astro';
+import AuthorCard from '../components/blog/AuthorCard.astro';
+import { pageGraph, personNode } from '../lib/schema';
+import { canonicalUrl } from '../lib/seo';
+
+const authors = await getCollection('authors');
+const url = canonicalUrl('/about/');
+const title = 'About Pet Signals';
+const description =
+	'Who writes Pet Signals, how we research every pet behavior, habit, and how-to guide, and why owners in the US and UK can trust our advice.';
+
+const jsonLd = pageGraph({
+	url,
+	type: 'AboutPage',
+	title,
+	description,
+	breadcrumbs: [{ name: 'Home', url: '/' }, { name: 'About' }],
+	nodes: authors.map((author) => personNode(author)),
+});
+---
+
+<BaseLayout title="About" description={description} canonical={url} jsonLd={jsonLd}>
+	<Container size="narrow" class="pt-8">
+		<Breadcrumbs items={[{ name: 'Home', url: '/' }, { name: 'About' }]} />
+	</Container>
+
+	<Container size="narrow" class="mt-6">
+		<h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">About Pet Signals</h1>
+
+		<Prose class="mt-6">
+			<p>
+				Pet Signals turns veterinary behavior science into plain English. We explain why your pet does
+				what it does and give you a routine to follow — written for dog and cat owners in the US and
+				UK, with no jargon and no scare tactics.
+			</p>
+
+			<h2>How we research every guide</h2>
+			<p>
+				Each guide starts with the peer-reviewed behavior literature and veterinary guidance, then gets
+				translated into steps you can actually run at home. We cite the underlying reasoning, note where
+				evidence is thin, and say plainly when a problem needs a vet or a certified behaviorist rather
+				than a blog post.
+			</p>
+			<p>
+				We update guides when the evidence changes and show the date of the last revision, so you always
+				know how current the advice is.
+			</p>
+
+			<h2>What we are not</h2>
+			<p>
+				Pet Signals is educational content, not veterinary care. It cannot diagnose your pet or replace
+				an examination. If your pet is unwell, in pain, or showing a sudden change in behavior, contact
+				your veterinarian.
+			</p>
+		</Prose>
+	</Container>
+
+	<Container size="narrow" class="mt-12">
+		<section aria-labelledby="team-heading">
+			<h2 id="team-heading" class="text-2xl font-extrabold tracking-tight">Our team</h2>
+			<div class="mt-6 space-y-6">
+				{authors.map((author) => <AuthorCard author={author} heading="h3" />)}
+			</div>
+		</section>
+	</Container>
+</BaseLayout>

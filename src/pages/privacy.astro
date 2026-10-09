@@ -1,0 +1,77 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/global/Breadcrumbs.astro';
+import Container from '../components/ui/Container.astro';
+import Prose from '../components/ui/Prose.astro';
+import { pageGraph } from '../lib/schema';
+import { canonicalUrl } from '../lib/seo';
+import { SITE } from '../lib/site';
+
+const url = canonicalUrl('/privacy/');
+const title = 'Privacy Policy';
+const description =
+	'How Pet Signals handles personal data, cookies, and analytics for visitors in the United States and the United Kingdom.';
+
+const jsonLd = pageGraph({
+	url,
+	title,
+	description,
+	breadcrumbs: [{ name: 'Home', url: '/' }, { name: 'Privacy' }],
+});
+---
+
+<BaseLayout title="Privacy Policy" description={description} canonical={url} jsonLd={jsonLd}>
+	<Container size="narrow" class="pt-8">
+		<Breadcrumbs items={[{ name: 'Home', url: '/' }, { name: 'Privacy' }]} />
+	</Container>
+
+	<Container size="narrow" class="mt-6">
+		<h1 class="text-3xl font-extrabold tracking-tight sm:text-4xl">Privacy policy</h1>
+		<p class="mt-3 text-sm text-muted">
+			Last updated: <time datetime="2026-10-09">9 October 2026</time>
+		</p>
+
+		<Prose class="mt-6">
+			<p>
+				This policy explains what personal data Pet Signals collects, why we collect it, and the choices
+				you have. It is written for readers in the United States and the United Kingdom, including rights
+				under the UK GDPR and the Data Protection Act 2018.
+			</p>
+
+			<h2>Information we collect</h2>
+			<p>
+				We do not require an account to read Pet Signals and we do not sell personal data. We only
+				receive personal data when you choose to send it to us, for example by emailing
+				{' '}
+				<a href={`mailto:${SITE.email}`}>{SITE.email}</a>.
+			</p>
+
+			<h2>Cookies and analytics</h2>
+			<p>
+				The site is designed to work without advertising cookies. If we add privacy-friendly analytics in
+				future to understand which guides are useful, we will update this policy and use a tool that does
+				not require a cookie banner.
+			</p>
+
+			<h2>How we use information</h2>
+			<p>
+				We use any information you send only to reply to you and to improve our content. We do not use it
+				for automated decision-making or profiling.
+			</p>
+
+			<h2>Your rights</h2>
+			<p>
+				Depending on where you live, you may have the right to access, correct, or delete the personal
+				data we hold about you, and to object to certain processing. To exercise any of these rights,
+				email us and we will respond within the time required by law.
+			</p>
+
+			<h2>Contact</h2>
+			<p>
+				Questions about this policy can be sent to
+				{' '}
+				<a href={`mailto:${SITE.email}`}>{SITE.email}</a>.
+			</p>
+		</Prose>
+	</Container>
+</BaseLayout>

@@ -1,11 +1,94 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Container from '../components/ui/Container.astro';
+import Button from '../components/ui/Button.astro';
+import ArticleCard from '../components/blog/ArticleCard.astro';
+import ClusterCard from '../components/blog/ClusterCard.astro';
+import CtaBanner from '../components/ui/CtaBanner.astro';
+import { CLUSTERS } from '../lib/clusters';
+import { getFeaturedPosts, getPosts, getPostsByCluster } from '../lib/content';
+import { homeGraph } from '../lib/schema';
+import { canonicalUrl } from '../lib/seo';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const featured = await getFeaturedPosts(3);
+const allPosts = await getPosts();
+const featuredIds = new Set(featured.map((post) => post.id));
+const latest = allPosts.filter((post) => !featuredIds.has(post.id)).slice(0, 3);
+const clusterGroups = await Promise.all(
+	CLUSTERS.map(async (cluster) => ({ cluster, posts: await getPostsByCluster(cluster.slug) })),
+);
+
+const url = canonicalUrl('/');
+const jsonLd = homeGraph({ url, featured });
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<BaseLayout description="Pet Signals explains pet behavior, daily habits, and practical how-to guides for dog and cat owners in the US and UK." jsonLd={jsonLd}>
+	<section class="border-b border-stone-200 bg-white">
+		<Container class="py-16 sm:py-24">
+			<div class="max-w-3xl">
+				<p class="text-sm font-semibold uppercase tracking-wide text-brand-700">
+					Pet behavior, habits &amp; how-to guides
+				</p>
+				<h1 class="mt-4 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">
+					Read your pet like a pro
+				</h1>
+				<p class="mt-6 text-lg text-muted">
+					Pet Signals explains why your pet does what it does — and exactly how to respond. Every guide
+					is written for dog and cat owners in the US and UK, grounded in veterinary behavior science
+					and built to be used today, not just read.
+				</p>
+				<div class="mt-8 flex flex-wrap gap-3">
+					<Button href="#topics">Explore topics</Button>
+					<Button href="/articles/" variant="secondary">Browse all articles</Button>
+				</div>
+			</div>
+		</Container>
+	</section>
+
+	<Container class="mt-14">
+		<section id="topics" aria-labelledby="topics-heading" class="scroll-mt-24">
+			<h2 id="topics-heading" class="text-2xl font-extrabold tracking-tight">Explore by topic</h2>
+			<div class="mt-6 grid gap-6 lg:grid-cols-3">
+				{
+					clusterGroups.map(({ cluster, posts }) => (
+						<ClusterCard cluster={cluster} posts={posts} />
+					))
+				}
+			</div>
+		</section>
+	</Container>
+
+	<Container class="mt-16">
+		<section aria-labelledby="featured-heading">
+			<h2 id="featured-heading" class="text-2xl font-extrabold tracking-tight">Featured guides</h2>
+			<div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+				{featured.map((post) => <ArticleCard post={post} />)}
+			</div>
+		</section>
+	</Container>
+
+	{
+		latest.length > 0 && (
+			<Container class="mt-16">
+				<section aria-labelledby="latest-heading">
+					<h2 id="latest-heading" class="text-2xl font-extrabold tracking-tight">Latest guides</h2>
+					<div class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+						{latest.map((post) => (
+							<ArticleCard post={post} />
+						))}
+					</div>
+				</section>
+			</Container>
+		)
+	}
+
+	<div class="mt-20">
+		<CtaBanner
+			eyebrow="Start here"
+			title="Not sure where to begin?"
+			body="Browse the full library of pet behavior, habits, and step-by-step how-to guides."
+			href="/articles/"
+			label="See all articles"
+		/>
+	</div>
+</BaseLayout>
