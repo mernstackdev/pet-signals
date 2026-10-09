@@ -1,0 +1,120 @@
+---
+import { Image } from 'astro:assets';
+import type { MarkdownHeading } from 'astro';
+
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs from '../components/global/Breadcrumbs.astro';
+import Container from '../components/ui/Container.astro';
+import Prose from '../components/ui/Prose.astro';
+import PostMeta from '../components/blog/PostMeta.astro';
+import TableOfContents from '../components/blog/TableOfContents.astro';
+import AuthorCard from '../components/blog/AuthorCard.astro';
+import HowToSteps from '../components/blog/HowToSteps.astro';
+import FaqSection from '../components/blog/FaqSection.astro';
+import RelatedPosts from '../components/blog/RelatedPosts.astro';
+import { getCluster } from '../lib/clusters';
+import { articleGraph } from '../lib/schema';
+import { absoluteUrl, canonicalUrl } from '../lib/seo';
+import type { Author, Post } from '../lib/content';
+
+interface Props {
+	post: Post;
+	author?: Author;
+	headings: MarkdownHeading[];
+	related: Post[];
+}
+
+const { post, author, headings, related } = Astro.props;
+const cluster = getCluster(post.data.cluster)!;
+const canonical = post.data.seo?.canonical ?? canonicalUrl(`/${post.data.cluster}/${post.id}/`);
+const imageUrl = post.data.heroImage ? absoluteUrl(post.data.heroImage.src) : undefined;
+
+const jsonLd = articleGraph({
+	url: canonical,
+	post,
+	author,
+	imageUrl,
+	imageWidth: post.data.heroImage?.width,
+	imageHeight: post.data.heroImage?.height,
+});
+
+const breadcrumbs = [
+	{ name: 'Home', url: '/' },
+	{ name: 'Articles', url: '/articles/' },
+	{ name: cluster.name, url: `/${cluster.slug}/` },
+	{ name: post.data.title },
+];
+---
+
+<BaseLayout
+	title={post.data.seo?.title ?? post.data.title}
+	description={post.data.seo?.description ?? post.data.description}
+	canonical={canonical}
+	type="article"
+	image={imageUrl}
+	imageAlt={post.data.heroImageAlt ?? post.data.title}
+	publishedTime={post.data.publishDate.toISOString()}
+	modifiedTime={(post.data.updatedDate ?? post.data.publishDate).toISOString()}
+	authorUrl={author ? absoluteUrl(`/about/#${author.id}`) : undefined}
+	section={cluster.name}
+	tags={post.data.tags}
+	jsonLd={jsonLd}
+>
+	<Container size="narrow" class="pt-8">
+		<Breadcrumbs items={breadcrumbs} />
+	</Container>
+
+	<article class="mt-6">
+		<Container size="narrow">
+			<header>
+				<p class="text-sm font-semibold uppercase tracking-wide text-brand-700">
+					<a href={`/${cluster.slug}/`} class="hover:text-brand-800">{cluster.name}</a>
+				</p>
+				<h1 class="mt-4 text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">
+					{post.data.title}
+				</h1>
+				<p class="mt-4 text-lg text-muted">{post.data.description}</p>
+				<PostMeta post={post} author={author} class="mt-5" />
+			</header>
+
+			{
+				post.data.heroImage && (
+					<figure class="mt-8">
+						<Image
+							src={post.data.heroImage}
+							alt={post.data.heroImageAlt ?? ''}
+							widths={[600, 1200]}
+							sizes="(min-width: 768px) 768px, 100vw"
+							loading="eager"
+							class="w-full rounded-card"
+						/>
+						{post.data.heroImageAlt && (
+							<figcaption class="mt-2 text-sm text-muted">{post.data.heroImageAlt}</figcaption>
+						)}
+					</figure>
+				)
+			}
+		</Container>
+
+		<Container class="mt-12">
+			<div class="grid gap-12 lg:grid-cols-[minmax(0,1fr)_16rem]">
+				<div>
+					<Prose>
+						<slot />
+					</Prose>
+
+					{post.data.howTo && <HowToSteps howTo={post.data.howTo} />}
+					<FaqSection faq={post.data.faq} />
+					{author && <AuthorCard author={author} class="mt-12" />}
+					<RelatedPosts posts={related} />
+				</div>
+
+				<aside class="hidden lg:block">
+					<div class="sticky top-24">
+						<TableOfContents headings={headings} />
+					</div>
+				</aside>
+			</div>
+		</Container>
+	</article>
+</BaseLayout>

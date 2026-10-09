@@ -1,0 +1,41 @@
+---
+import type { Cluster } from '../../lib/clusters';
+import { postPath, type Post } from '../../lib/content';
+
+interface Props {
+	cluster: Cluster;
+	posts: Post[];
+	class?: string;
+}
+
+const { cluster, posts, class: className } = Astro.props;
+const latest = posts.slice(0, 3);
+---
+
+<article class:list={['flex flex-col rounded-card bg-white p-6 ring-1 ring-stone-200', className]}>
+	<h3 class="text-xl font-extrabold tracking-tight">
+		<a href={`/${cluster.slug}/`} class="hover:text-brand-700">{cluster.name}</a>
+	</h3>
+	<p class="mt-2 line-clamp-3 text-sm text-muted">{cluster.intro}</p>
+
+	{latest.length > 0 && (
+		<ul class="mt-4 space-y-2 border-t border-stone-100 pt-4 text-sm">
+			{
+				latest.map((post) => (
+					<li>
+						<a href={postPath(post)} class="text-muted hover:text-brand-700">
+							{post.data.title}
+						</a>
+					</li>
+				))
+			}
+		</ul>
+	)}
+
+	<p class="mt-4 text-sm font-semibold text-brand-700">
+		<a href={`/${cluster.slug}/`}>
+			All {cluster.name.toLowerCase()} guides
+			<span aria-hidden="true"> →</span>
+		</a>
+	</p>
+</article>

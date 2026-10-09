@@ -1,0 +1,49 @@
+---
+import { Image } from 'astro:assets';
+
+import { getCluster } from '../../lib/clusters';
+import { postPath, type Post } from '../../lib/content';
+import { formatDate, isoDate, readingTime } from '../../lib/seo';
+
+interface Props {
+	post: Post;
+	heading?: 'h2' | 'h3';
+	class?: string;
+}
+
+const { post, heading: Heading = 'h3', class: className } = Astro.props;
+const cluster = getCluster(post.data.cluster);
+const href = postPath(post);
+const minutes = readingTime(post.body ?? '');
+---
+
+<article
+	class:list={[
+		'group relative flex flex-col overflow-hidden rounded-card bg-white ring-1 ring-stone-200 transition hover:shadow-md focus-within:ring-brand-400',
+		className,
+	]}
+>
+	{
+		post.data.heroImage && (
+			<Image
+				src={post.data.heroImage}
+				alt={post.data.heroImageAlt ?? post.data.title}
+				widths={[400, 800, 1200]}
+				sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+				class="aspect-[16/9] w-full object-cover"
+			/>
+		)
+	}
+	<div class="flex flex-1 flex-col p-5">
+		{cluster && <p class="text-xs font-semibold uppercase tracking-wide text-brand-700">{cluster.name}</p>}
+		<Heading class="mt-2 text-lg font-bold leading-snug">
+			<a href={href} class="after:absolute after:inset-0 group-hover:text-brand-700">{post.data.title}</a>
+		</Heading>
+		<p class="mt-2 line-clamp-3 flex-1 text-sm text-muted">{post.data.description}</p>
+		<p class="mt-4 text-xs text-muted">
+			<time datetime={isoDate(post.data.publishDate)}>{formatDate(post.data.publishDate)}</time>
+			<span aria-hidden="true"> · </span>
+			{minutes} min read
+		</p>
+	</div>
+</article>
