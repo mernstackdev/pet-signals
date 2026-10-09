@@ -1,0 +1,62 @@
+---
+import { CLUSTERS } from '../../lib/clusters';
+import { SITE } from '../../lib/site';
+import Logo from './Logo.astro';
+
+const year = new Date().getFullYear();
+const legal = [
+	{ href: '/about/', label: 'About' },
+	{ href: '/contact/', label: 'Contact' },
+	{ href: '/privacy/', label: 'Privacy' },
+	{ href: '/terms/', label: 'Terms' },
+	{ href: '/rss.xml', label: 'RSS' },
+];
+---
+
+<footer class="mt-20 border-t border-stone-200 bg-white">
+	<div class="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-3 lg:px-8">
+		<div>
+			<Logo />
+			<p class="mt-3 max-w-xs text-sm text-muted">{SITE.tagline} Plain-English pet behavior, habits, and how-to guides for owners in the US and UK.</p>
+		</div>
+
+		<nav aria-label="Topics">
+			<h2 class="text-sm font-semibold uppercase tracking-wide text-ink">Topics</h2>
+			<ul class="mt-4 space-y-2 text-sm">
+				{
+					CLUSTERS.map((cluster) => (
+						<li>
+							<a href={`/${cluster.slug}/`} class="text-muted hover:text-brand-700">
+								{cluster.name}
+							</a>
+						</li>
+					))
+				}
+				<li>
+					<a href="/articles/" class="text-muted hover:text-brand-700">All articles</a>
+				</li>
+			</ul>
+		</nav>
+
+		<nav aria-label="Site">
+			<h2 class="text-sm font-semibold uppercase tracking-wide text-ink">Site</h2>
+			<ul class="mt-4 space-y-2 text-sm">
+				{
+					legal.map((link) => (
+						<li>
+							<a href={link.href} class="text-muted hover:text-brand-700">
+								{link.label}
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</nav>
+	</div>
+
+	<div class="border-t border-stone-200">
+		<p class="mx-auto max-w-6xl px-4 py-6 text-sm text-muted sm:px-6 lg:px-8">
+			© {year} {SITE.name}. All rights reserved. Pet Signals provides general information and is not a substitute for professional veterinary advice.
+		</p>
+	</div>
+</footer>

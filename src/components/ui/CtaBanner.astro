@@ -1,0 +1,28 @@
+---
+import Container from './Container.astro';
+import Button from './Button.astro';
+
+interface Props {
+	eyebrow?: string;
+	title: string;
+	body?: string;
+	href: string;
+	label: string;
+	class?: string;
+}
+
+const { eyebrow, title, body, href, label, class: className } = Astro.props;
+---
+
+<Container class:list={[className]}>
+	<div
+		class="rounded-card bg-brand-600 px-6 py-10 text-center text-white sm:px-10 sm:py-12"
+	>
+		{eyebrow && <p class="text-sm font-semibold uppercase tracking-wide text-brand-100">{eyebrow}</p>}
+		<h2 class="mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl">{title}</h2>
+		{body && <p class="mx-auto mt-3 max-w-xl text-brand-50">{body}</p>}
+		<div class="mt-6 flex justify-center">
+			<Button href={href} variant="secondary">{label}</Button>
+		</div>
+	</div>
+</Container>

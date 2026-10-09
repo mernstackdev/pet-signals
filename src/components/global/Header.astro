@@ -1,0 +1,33 @@
+---
+import { NAV_LINKS } from '../../lib/site';
+import Logo from './Logo.astro';
+
+const path = Astro.url.pathname;
+---
+
+<header class="sticky top-0 z-40 border-b border-stone-200 bg-cream/85 backdrop-blur">
+	<div
+		class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 sm:px-6 lg:px-8"
+	>
+		<a href="/" class="rounded-md" aria-label="Pet Signals — home">
+			<Logo />
+		</a>
+		<nav aria-label="Primary" class="order-3 w-full sm:order-none sm:w-auto">
+			<ul class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-medium">
+				{
+					NAV_LINKS.map((link) => (
+						<li>
+							<a
+								href={link.href}
+								class="text-muted transition-colors hover:text-brand-700"
+								aria-current={path === link.href ? 'page' : undefined}
+							>
+								{link.label}
+							</a>
+						</li>
+					))
+				}
+			</ul>
+		</nav>
+	</div>
+</header>

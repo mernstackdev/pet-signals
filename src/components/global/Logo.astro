@@ -1,0 +1,21 @@
+---
+interface Props {
+	class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<span class:list={['inline-flex items-center gap-2', className]}>
+	<svg viewBox="0 0 32 32" class="h-8 w-8 shrink-0" aria-hidden="true">
+		<rect width="32" height="32" rx="7" fill="var(--color-brand-400)"></rect>
+		<g fill="#ffffff" transform="translate(16 17.5) scale(0.36)">
+			<ellipse cx="0" cy="20" rx="36" ry="29"></ellipse>
+			<ellipse cx="-32" cy="-16" rx="16" ry="19"></ellipse>
+			<ellipse cx="-12" cy="-38" rx="16" ry="19"></ellipse>
+			<ellipse cx="12" cy="-38" rx="16" ry="19"></ellipse>
+			<ellipse cx="32" cy="-16" rx="16" ry="19"></ellipse>
+		</g>
+	</svg>
+	<span class="text-lg font-extrabold tracking-tight">Pet Signals</span>
+</span>
