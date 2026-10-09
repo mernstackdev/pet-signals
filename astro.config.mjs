@@ -120,7 +120,10 @@ if (isCI && !explicitSite) {
 export default defineConfig({
 	site: SITE,
 	trailingSlash: 'always',
-	build: { format: 'directory' },
+	// Inline the stylesheet so there is no render-blocking request and no
+	// HTML → CSS critical chain. First paint then depends only on the HTML,
+	// which keeps Speed Index fast and stable on slow mobile connections.
+	build: { format: 'directory', inlineStylesheets: 'always' },
 	// The dev toolbar injects its own links and scripts, which pollutes
 	// Lighthouse runs against `astro dev`. Disable it so dev audits are meaningful.
 	devToolbar: { enabled: false },

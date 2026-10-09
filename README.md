@@ -147,6 +147,11 @@ toolbar — which on its own injects a non-descriptive "Learn more" link and tan
 performance score. The dev toolbar is disabled in `astro.config.mjs` so dev audits
 stay meaningful, but the production build is the number that matters.
 
+> **Note:** the stylesheet is inlined into every page (`build.inlineStylesheets: 'always'`).
+> That removes the render-blocking `<link rel="stylesheet">` and the HTML → CSS critical
+> chain, so first paint depends only on the HTML — which keeps Speed Index fast and stable
+> on slow mobile connections. The trade-off is that CSS is not cached across page views.
+
 ## Deploy to Cloudflare
 
 The site is fully static (`output: 'static'`) and deploys as a **Cloudflare Workers static-assets**
