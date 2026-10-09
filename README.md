@@ -108,11 +108,13 @@ Every article is also published as clean Markdown and advertised for AI agents, 
 
 ## Reading experience
 
+- **Read mode** (article pages): a distraction-free view that hides navigation, breadcrumbs, the actions bar, the table of contents and related content, with **text size** (5 steps) and **theme** (Light / Sepia / Dark) controls. Choices persist in `localStorage` and are applied before first paint, so there is no flash.
 - Refined `prose-lg` typography with a comfortable measure and underlined, brand-coloured links.
 - Sticky **table of contents** on desktop with **scroll-spy** highlighting, plus a collapsible **On this page** panel on mobile.
 - **Reading progress bar** and a **Back to top** button.
 - **Clickable heading anchors** on every `##` / `###` for easy deep-linking.
-- Byline shows published / updated dates and an estimated reading time.
+- Byline shows published / updated dates and an estimated reading time. The author bio appears once, at the end of the article.
+- **Mobile-first**: compact single-row scrollable header, a short "Back to …" breadcrumb link instead of a long trail, a horizontally scrollable actions bar with 44px tap targets, and a full-bleed hero image.
 
 ## Deploying
 

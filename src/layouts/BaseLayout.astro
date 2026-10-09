@@ -21,18 +21,34 @@ interface Props {
 	tags?: string[];
 	jsonLd?: Record<string, unknown>;
 	markdownUrl?: string;
+	/** Enables the distraction-free reading mode toggle on this page. */
+	readable?: boolean;
 }
 
-const seo = Astro.props;
+const { readable, ...seo } = Astro.props;
 ---
 
 <!doctype html>
-<html lang={SITE.locale}>
+<html lang={SITE.locale} data-read-page={readable ? 'true' : undefined}>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="generator" content={Astro.generator} />
 		<Seo {...seo} />
+		<script is:inline>
+			// Apply saved reading preferences before first paint (article pages only).
+			(function () {
+				try {
+					var root = document.documentElement;
+					if (root.getAttribute('data-read-page') !== 'true') return;
+					if (localStorage.getItem('ps-read-mode') === 'true') root.setAttribute('data-read-mode', 'true');
+					var size = localStorage.getItem('ps-read-size');
+					if (size) root.setAttribute('data-read-size', size);
+					var theme = localStorage.getItem('ps-read-theme');
+					if (theme) root.setAttribute('data-read-theme', theme);
+				} catch (error) {}
+			})();
+		</script>
 		<slot name="head" />
 	</head>
 	<body class="flex min-h-dvh flex-col">

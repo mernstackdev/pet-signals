@@ -3,9 +3,10 @@ interface Props {
 	as?: 'div' | 'section' | 'article' | 'aside' | 'header' | 'footer' | 'nav' | 'main';
 	size?: 'narrow' | 'default' | 'wide';
 	class?: string;
+	[key: string]: unknown;
 }
 
-const { as: Tag = 'div', size = 'default', class: className } = Astro.props;
+const { as: Tag = 'div', size = 'default', class: className, ...rest } = Astro.props;
 const widths = {
 	narrow: 'max-w-3xl',
 	default: 'max-w-6xl',
@@ -13,6 +14,6 @@ const widths = {
 } as const;
 ---
 
-<Tag class:list={['mx-auto w-full px-4 sm:px-6 lg:px-8', widths[size], className]}>
+<Tag class:list={['mx-auto w-full px-4 sm:px-6 lg:px-8', widths[size], className]} {...rest}>
 	<slot />
 </Tag>

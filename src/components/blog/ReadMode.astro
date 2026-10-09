@@ -1,0 +1,120 @@
+---
+/** Reading-mode controls: exit, text size and theme. Hidden until reading mode is active. */
+const buttonClass =
+	'inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full px-3 text-sm font-semibold transition hover:bg-stone-500/10';
+---
+
+<div
+	data-read-mode-bar
+	role="toolbar"
+	aria-label="Reading mode controls"
+	class="fixed inset-x-0 top-0 z-40 items-center justify-between gap-3 border-b px-4 py-2 sm:px-6"
+	style="background-color: var(--rm-bg); color: var(--rm-fg); border-color: var(--rm-border);"
+>
+	<button type="button" data-read-exit class={buttonClass}>
+		<svg viewBox="0 0 20 20" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+			<path d="M12 5 7 10l5 5" stroke-linecap="round" stroke-linejoin="round"></path>
+		</svg>
+		Exit
+	</button>
+
+	<div class="flex items-center gap-2">
+		<div class="flex items-center rounded-full" style="box-shadow: inset 0 0 0 1px var(--rm-border);">
+			<button
+				type="button"
+				data-read-size="down"
+				aria-label="Decrease text size"
+				class="inline-flex h-11 w-11 items-center justify-center rounded-l-full text-sm font-semibold transition hover:bg-stone-500/10"
+			>
+				A−
+			</button>
+			<span class="h-6 w-px" style="background-color: var(--rm-border);"></span>
+			<button
+				type="button"
+				data-read-size="up"
+				aria-label="Increase text size"
+				class="inline-flex h-11 w-11 items-center justify-center rounded-r-full text-base font-semibold transition hover:bg-stone-500/10"
+			>
+				A+
+			</button>
+		</div>
+
+		<button
+			type="button"
+			data-read-theme
+			aria-label="Change reading theme"
+			class={buttonClass}
+			style="box-shadow: inset 0 0 0 1px var(--rm-border);"
+		>
+			<svg viewBox="0 0 20 20" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+				<circle cx="10" cy="10" r="6.5"></circle>
+				<path d="M10 3.5v13" stroke-linecap="round"></path>
+			</svg>
+			<span data-read-theme-label>Light</span>
+		</button>
+	</div>
+</div>
+
+<script>
+	(function () {
+		const root = document.documentElement;
+		if (root.getAttribute('data-read-page') !== 'true') return;
+
+		const THEMES = ['light', 'sepia', 'dark'];
+		const toggle = document.querySelector('[data-read-mode-toggle]');
+		const toggleLabel = document.querySelector('[data-read-mode-label]');
+		const bar = document.querySelector('[data-read-mode-bar]');
+		const themeLabel = document.querySelector('[data-read-theme-label]');
+
+		const store = (key, value) => {
+			try {
+				localStorage.setItem(key, value);
+			} catch (error) {}
+		};
+
+		let size = Number(root.getAttribute('data-read-size') || 3);
+		let theme = root.getAttribute('data-read-theme') || 'light';
+		if (THEMES.indexOf(theme) === -1) theme = 'light';
+
+		const isOn = () => root.getAttribute('data-read-mode') === 'true';
+
+		const applyTheme = () => {
+			root.setAttribute('data-read-theme', theme);
+			if (themeLabel) themeLabel.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
+			store('ps-read-theme', theme);
+		};
+		const applySize = () => {
+			root.setAttribute('data-read-size', String(size));
+			store('ps-read-size', String(size));
+		};
+		const applyMode = (on) => {
+			if (on) root.setAttribute('data-read-mode', 'true');
+			else root.removeAttribute('data-read-mode');
+			if (toggle) toggle.setAttribute('aria-pressed', String(on));
+			if (toggleLabel) toggleLabel.textContent = on ? 'Exit read mode' : 'Read mode';
+			store('ps-read-mode', on ? 'true' : 'false');
+		};
+
+		applyTheme();
+		if (!root.getAttribute('data-read-size')) applySize();
+		if (toggle) toggle.setAttribute('aria-pressed', String(isOn()));
+		if (toggleLabel) toggleLabel.textContent = isOn() ? 'Exit read mode' : 'Read mode';
+
+		if (toggle) {
+			toggle.addEventListener('click', () => applyMode(!isOn()));
+		}
+		if (bar) {
+			bar.querySelector('[data-read-exit]').addEventListener('click', () => applyMode(false));
+			bar.querySelectorAll('[data-read-size]').forEach((button) => {
+				button.addEventListener('click', () => {
+					size = Math.min(5, Math.max(1, size + (button.dataset.readSize === 'up' ? 1 : -1)));
+					applySize();
+				});
+			});
+			bar.querySelector('[data-read-theme]').addEventListener('click', () => {
+				theme = THEMES[(THEMES.indexOf(theme) + 1) % THEMES.length];
+				applyTheme();
+			});
+		}
+	})();
+</script>

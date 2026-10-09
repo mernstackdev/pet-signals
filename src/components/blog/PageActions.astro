@@ -19,21 +19,32 @@ const tools = [
 ];
 
 const trigger =
-	'inline-flex cursor-pointer list-none items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-sm font-medium text-ink ring-1 ring-stone-300 transition hover:bg-stone-50 [&::-webkit-details-marker]:hidden';
+	'inline-flex min-h-11 shrink-0 cursor-pointer list-none items-center gap-1.5 rounded-full bg-white px-3.5 text-sm font-medium text-ink ring-1 ring-stone-300 transition hover:bg-stone-50 [&::-webkit-details-marker]:hidden';
 const menu =
 	'absolute left-0 z-30 mt-2 w-56 overflow-hidden rounded-xl bg-white p-1 text-left shadow-lg ring-1 ring-stone-200';
 const menuItem =
-	'flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink transition hover:bg-brand-50 hover:text-brand-800';
+	'flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-ink transition hover:bg-brand-50 hover:text-brand-800';
 ---
 
 <div
-	class:list={['not-prose flex flex-wrap items-center gap-2', className]}
+	class:list={[
+		'not-prose flex flex-nowrap items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex-wrap sm:overflow-visible sm:pb-0',
+		className,
+	]}
 	data-page-actions
 	data-markdown-url={markdownUrl}
 	data-canonical={canonical}
 	data-title={title}
 >
-	<details class="group relative" data-menu>
+	<button type="button" data-read-mode-toggle aria-pressed="false" class={trigger}>
+		<svg viewBox="0 0 20 20" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+			<path d="M10 5.5C8.5 4.4 6.6 4 4.5 4H3v11h2c1.9 0 3.4.4 5 1.5 1.6-1.1 3.1-1.5 5-1.5h2V4h-1.5c-2.1 0-4 .4-5.5 1.5Z" stroke-linejoin="round"></path>
+			<path d="M10 5.5V16.5" stroke-linecap="round"></path>
+		</svg>
+		<span data-read-mode-label>Read mode</span>
+	</button>
+
+	<details class="group relative shrink-0" data-menu>
 		<summary class={trigger}>
 			<svg viewBox="0 0 20 20" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
 				<rect x="6" y="6" width="10" height="11" rx="2"></rect>
@@ -60,7 +71,7 @@ const menuItem =
 		</div>
 	</details>
 
-	<details class="group relative" data-menu>
+	<details class="group relative shrink-0" data-menu>
 		<summary class={trigger}>
 			<svg viewBox="0 0 20 20" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M10 3.5 11.7 8l4.3.3-3.3 2.8 1 4.4L10 13.2 6.3 15.5l1-4.4L4 8.3 8.3 8 10 3.5Z" stroke-linejoin="round"></path></svg>
 			Open in
@@ -80,7 +91,7 @@ const menuItem =
 
 	<a
 		href={llmsUrl}
-		class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium text-muted transition hover:text-brand-700"
+		class="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-sm font-medium text-muted transition hover:text-brand-700"
 	>
 		<svg viewBox="0 0 20 20" class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M6 4h8M6 8h8M6 12h5" stroke-linecap="round"></path><rect x="3" y="2.5" width="14" height="15" rx="2"></rect></svg>
 		llms.txt

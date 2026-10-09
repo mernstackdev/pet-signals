@@ -10,10 +10,28 @@ interface Props {
 }
 
 const { items, class: className } = Astro.props;
+const parent = items.length > 1 ? items[items.length - 2] : items[0];
 ---
 
 <nav aria-label="Breadcrumb" class:list={['text-sm', className]}>
-	<ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-muted">
+	<a
+		href={parent.url ?? '/'}
+		class="inline-flex max-w-full items-center gap-1.5 rounded-full py-1 font-medium text-muted transition hover:text-brand-700 sm:hidden"
+	>
+		<svg
+			viewBox="0 0 20 20"
+			class="h-4 w-4 shrink-0"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="1.8"
+			aria-hidden="true"
+		>
+			<path d="M12 5 7 10l5 5" stroke-linecap="round" stroke-linejoin="round"></path>
+		</svg>
+		<span class="truncate">{parent.name}</span>
+	</a>
+
+	<ol class="hidden flex-wrap items-center gap-x-2 gap-y-1 text-muted sm:flex">
 		{
 			items.map((item, index) => (
 				<li class="flex items-center gap-2">
