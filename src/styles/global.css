@@ -12,7 +12,9 @@
 	--color-brand-300: #eeb07c;
 	--color-brand-400: #e8853a;
 	--color-brand-500: #dc7328;
-	--color-brand-600: #c25c1c;
+	/* brand-600 is the "primary surface" shade: it must keep >= 4.5:1 against
+	   white text (currently 5.02:1). Do not lighten it without re-checking. */
+	--color-brand-600: #b45309;
 	--color-brand-700: #9c4817;
 	--color-brand-800: #7d3a16;
 	--color-brand-900: #663117;
