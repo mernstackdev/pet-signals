@@ -1,6 +1,13 @@
+/**
+ * Site origin. `site` in astro.config resolves to localhost during development and
+ * to the deployment URL in production, so no domain is hardcoded here.
+ */
+const configuredSite = import.meta.env.SITE;
+const SITE_URL = (configuredSite || 'http://localhost:4321').replace(/\/+$/, '');
+
 export const SITE = {
 	name: 'Pet Signals',
-	url: 'https://petsignals.info',
+	url: SITE_URL,
 	title: 'Pet Signals — Pet Behavior, Habits & How-To Guides',
 	shortTitle: 'Pet Signals',
 	tagline: 'Read your pet like a pro.',

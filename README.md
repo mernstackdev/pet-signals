@@ -116,7 +116,21 @@ Every article is also published as clean Markdown and advertised for AI agents, 
 
 ## Deploying
 
-`npm run build` produces `dist/`. Set `site` in `astro.config.mjs` to your production URL, and add 301 redirects under `redirects` whenever a published slug changes.
+`npm run build` produces `dist/`.
+
+No domain is hardcoded. The canonical origin is resolved automatically, in this order:
+
+1. `SITE_URL` (or `PUBLIC_SITE_URL`) environment variable, if set.
+2. The host's own variable — `VERCEL_PROJECT_PRODUCTION_URL` / `VERCEL_URL` (Vercel), `URL` / `DEPLOY_PRIME_URL` (Netlify), `CF_PAGES_URL` (Cloudflare Pages).
+3. `http://localhost:4321` for local development.
+
+That single origin feeds canonical URLs, JSON-LD `@id`s, the sitemap, RSS, `/llms.txt`, `/llms-full.txt`, the per-article `.md` alternates, and `robots.txt`. So locally everything points at `http://localhost:4321`, and in production it follows the deploy URL with no code change. To pin a specific domain (recommended in production), set it explicitly:
+
+```sh
+SITE_URL=https://your-domain.com npm run build
+```
+
+Add 301 redirects under `redirects` in `astro.config.mjs` whenever a published slug changes.
 
 ## Migrating to Sanity (next step)
 

@@ -9,7 +9,28 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
-const SITE = 'https://petsignals.info';
+/**
+ * Resolve the canonical site origin without hardcoding a domain:
+ * an explicit SITE_URL wins, then common host-provided variables, then localhost.
+ */
+function resolveSite() {
+	const candidates = [
+		process.env.SITE_URL,
+		process.env.PUBLIC_SITE_URL,
+		process.env.VERCEL_PROJECT_PRODUCTION_URL,
+		process.env.VERCEL_URL,
+		process.env.URL, // Netlify production
+		process.env.DEPLOY_PRIME_URL, // Netlify preview
+		process.env.CF_PAGES_URL, // Cloudflare Pages
+		process.env.DEPLOY_URL,
+	];
+	const found = candidates.find((value) => value && value.trim());
+	if (!found) return 'http://localhost:4321';
+	const withProtocol = /^https?:\/\//.test(found) ? found : `https://${found}`;
+	return withProtocol.replace(/\/+$/, '');
+}
+
+const SITE = resolveSite();
 const CLUSTERS = ['pet-behavior', 'pet-habits', 'how-to-guides'];
 
 const srcDir = fileURLToPath(new URL('./src', import.meta.url));
