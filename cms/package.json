@@ -12,6 +12,7 @@
 		"sanity": "sanity",
 		"import:content": "tsx scripts/import-content.ts",
 		"import:push": "tsx scripts/import-content.ts --push",
+		"verify:content": "tsx scripts/verify-content.ts",
 		"backup": "sanity dataset export production ./backups/production.tar.gz",
 		"restore": "sanity dataset import ./backups/production.tar.gz production"
 	},
