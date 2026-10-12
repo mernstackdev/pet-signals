@@ -10,6 +10,8 @@
 		"deploy": "sanity deploy",
 		"typecheck": "tsc --noEmit",
 		"sanity": "sanity",
+		"import:content": "tsx scripts/import-content.ts",
+		"import:push": "tsx scripts/import-content.ts --push",
 		"backup": "sanity dataset export production ./backups/production.tar.gz",
 		"restore": "sanity dataset import ./backups/production.tar.gz production"
 	},
@@ -21,8 +23,11 @@
 		"styled-components": "^6.1.15"
 	},
 	"devDependencies": {
+		"@sanity/client": "^8.9.0",
 		"@types/react": "^19.2.0",
 		"@types/react-dom": "^19.2.0",
-		"typescript": "^5.9.0"
+		"tsx": "^4.23.15",
+		"typescript": "^5.9.0",
+		"yaml": "^2.9.1"
 	}
 }

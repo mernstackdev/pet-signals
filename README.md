@@ -194,6 +194,12 @@ A local `.env` is **not** deployed (it is gitignored), so `SITE_URL` must be set
 variable. After the first deploy, add `petsignals.info` under the Worker's
 **Settings → Domains & Routes**.
 
+### Publishing (Sanity → rebuild)
+
+Content lives in Sanity (`cms/`), so publishing needs a rebuild to reach the live site.
+Create a Cloudflare deploy hook and point a Sanity webhook at it — see
+[`cms/README.md` → Publishing triggers a rebuild](./cms/README.md#publishing-triggers-a-rebuild).
+
 ### Prefer classic Pages?
 
 Cloudflare Pages works too — build command `npm run build`, output directory `dist`, and **no**

@@ -57,6 +57,31 @@ Useful commands:
 | `npm run deploy`        | Deploy to `<project>.sanity.studio`                 |
 | `npm run backup`        | Export the dataset to `backups/production.tar.gz`   |
 
+### Import the existing articles
+
+The three starter articles live in the repo as Markdown. Load them into Sanity with:
+
+```sh
+npm run import:content   # builds cms/seed.ndjson and prints a summary (no credentials needed)
+npm run import:push      # uploads hero images, then upserts the documents
+```
+
+`import:push` needs `SANITY_API_WRITE_TOKEN` in `.env`. Without a token you can import the
+NDJSON through the CLI instead (after `npx sanity login`):
+
+```sh
+npx sanity dataset import seed.ndjson production
+```
+
+Either way it creates — idempotently — 3 categories, 1 author, the site-settings singleton,
+and 3 posts with their Portable Text bodies, hero images, FAQ and how-to steps. Document ids
+are deterministic (`post.<slug>`, `category.<slug>`, `author.<slug>`, `siteSettings`), so
+re-running updates the same documents instead of duplicating them.
+
+> The Markdown → Portable Text conversion covers headings, paragraphs, bullet/numbered
+> lists, block quotes and inline bold/italic/code/links. The richer blocks (tables,
+> callouts, pull quotes, code) are authored in the Studio.
+
 ## 3. What's in here
 
 ```
@@ -155,6 +180,24 @@ plus `FAQPage` and `HowTo` from the `faq` / `howTo` fields above. The mapping is
   `public/_redirects` on the frontend; Sanity can't know about that.
 - **Backups**: `npm run backup` writes a dataset export; keep those out of git
   (`cms/backups/` is ignored).
+
+## Publishing triggers a rebuild
+
+The frontend is statically built, so a publish in Sanity only reaches the live site after a
+rebuild. Wire that up once:
+
+1. **Cloudflare** → your Worker → **Settings → Builds & deployments** → create a **deploy/build
+   hook** and copy its URL.
+2. **Sanity** → sanity.io/manage → your project → **API → Webhooks** → create a webhook:
+   - **URL**: the Cloudflare hook URL
+   - **Trigger on**: Create, Update, Delete
+   - **Filter**: `_type in ["post", "author", "category", "siteSettings"]`
+   - **Projection**: `{_id, _type}`
+   - **Method**: POST
+3. Publish a draft and check that a Cloudflare build starts.
+
+If you skip this, publishing still works — the site just stays on the last build until you
+trigger a deploy yourself.
 
 ## Wiring the frontend
 

@@ -33,5 +33,6 @@ cms/dist/
 cms/.env
 cms/.env.local
 cms/backups/
+cms/seed.ndjson
 .commandcode
 drafts/
