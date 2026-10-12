@@ -1,8 +1,8 @@
 ---
-import { Image } from 'astro:assets';
 import type { MarkdownHeading } from 'astro';
 
 import BaseLayout from './BaseLayout.astro';
+import SanityImage from '../components/ui/SanityImage.astro';
 import Breadcrumbs from '../components/global/Breadcrumbs.astro';
 import Container from '../components/ui/Container.astro';
 import Prose from '../components/ui/Prose.astro';
@@ -99,14 +99,12 @@ const breadcrumbs = [
 			{
 				post.data.heroImage && (
 					<figure class="mt-8">
-						<Image
-							src={post.data.heroImage}
-							alt={post.data.heroImageAlt ?? ''}
+						<SanityImage
+							image={{ ...post.data.heroImage, alt: post.data.heroImageAlt ?? '' }}
 							widths={[600, 1200]}
 							sizes="(min-width: 768px) 768px, 100vw"
 							loading="eager"
 							fetchpriority="high"
-							decoding="async"
 							class="-mx-4 w-[calc(100%+2rem)] rounded-none sm:mx-0 sm:w-full sm:rounded-card"
 						/>
 						{post.data.heroImageAlt && (

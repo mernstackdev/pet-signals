@@ -1,5 +1,6 @@
 import { SITE } from './site';
 import { formatDate, isoDate, readingTime } from './seo';
+import { portableTextToMarkdown } from './portable-text';
 import type { Author, Post } from './content';
 
 /**
@@ -26,7 +27,7 @@ export function articleMarkdown(opts: { post: Post; author?: Author; canonical: 
 	lines.push(meta.join(' · '), '');
 	lines.push(`Source: ${canonical}`, '');
 	lines.push('---', '');
-	lines.push((post.body ?? '').trim(), '');
+	lines.push(portableTextToMarkdown(post.blocks).trim(), '');
 
 	if (data.howTo?.steps?.length) {
 		lines.push('---', '');

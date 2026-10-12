@@ -1,6 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
-
+import { getAuthors } from '../lib/content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from '../components/global/Breadcrumbs.astro';
 import Container from '../components/ui/Container.astro';
@@ -9,7 +8,7 @@ import AuthorCard from '../components/blog/AuthorCard.astro';
 import { pageGraph, personNode } from '../lib/schema';
 import { canonicalUrl } from '../lib/seo';
 
-const authors = await getCollection('authors');
+const authors = await getAuthors();
 const url = canonicalUrl('/about/');
 const title = 'About Pet Signals';
 const description =

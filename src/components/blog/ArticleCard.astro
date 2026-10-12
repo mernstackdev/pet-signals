@@ -1,9 +1,8 @@
 ---
-import { Image } from 'astro:assets';
-
 import { getCluster } from '../../lib/clusters';
 import { postPath, type Post } from '../../lib/content';
 import { formatDate, isoDate, readingTime } from '../../lib/seo';
+import SanityImage from '../ui/SanityImage.astro';
 
 interface Props {
 	post: Post;
@@ -25,9 +24,8 @@ const minutes = readingTime(post.body ?? '');
 >
 	{
 		post.data.heroImage && (
-			<Image
-				src={post.data.heroImage}
-				alt={post.data.heroImageAlt ?? post.data.title}
+			<SanityImage
+				image={{ ...post.data.heroImage, alt: post.data.heroImageAlt ?? post.data.title }}
 				widths={[400, 800, 1200]}
 				sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
 				class="aspect-[16/9] w-full object-cover"

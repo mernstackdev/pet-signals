@@ -1,0 +1,39 @@
+---
+import type { SanityImageRef } from '../../lib/images';
+import { imageSrcSet, imageUrl } from '../../lib/sanity';
+
+interface Props {
+	image: SanityImageRef;
+	widths?: number[];
+	sizes?: string;
+	class?: string;
+	loading?: 'lazy' | 'eager';
+	fetchpriority?: 'high' | 'low' | 'auto';
+}
+
+const {
+	image,
+	widths = [400, 800, 1200],
+	sizes = '100vw',
+	class: className,
+	loading = 'lazy',
+	fetchpriority,
+} = Astro.props;
+
+const fallbackWidth = Math.min(1200, image.width || 1200);
+const src = imageUrl(image.ref, { width: fallbackWidth });
+const srcset = imageSrcSet(image.ref, widths);
+---
+
+<img
+	src={src}
+	srcset={srcset}
+	sizes={sizes}
+	width={image.width}
+	height={image.height}
+	alt={image.alt ?? ''}
+	loading={loading}
+	fetchpriority={fetchpriority}
+	decoding="async"
+	class={className}
+/>

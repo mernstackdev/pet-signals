@@ -59,7 +59,8 @@ Useful commands:
 
 ### Import the existing articles
 
-The three starter articles live in the repo as Markdown. Load them into Sanity with:
+The starter articles ship as Markdown in `cms/seed/` (blog posts, authors, images). Load
+them into Sanity with:
 
 ```sh
 npm run import:content   # builds cms/seed.ndjson and prints a summary (no credentials needed)

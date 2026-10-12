@@ -6,12 +6,13 @@ import { existsSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import mdx from '@astrojs/mdx';
+import { createClient } from '@sanity/client';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
 const CLUSTERS = ['pet-behavior', 'pet-habits', 'how-to-guides'];
 const srcDir = fileURLToPath(new URL('./src', import.meta.url));
+const SANITY_API_VERSION = '2026-01-01';
 
 /**
  * Resolve the canonical site origin without hardcoding a domain.
@@ -64,18 +65,11 @@ function walk(dir) {
 	});
 }
 
-/** Maps sitemap URLs to the git last-modified date of the file that produces them. */
-function buildLastmodMap() {
+/** Sitemap `lastmod` for the static pages (git-based; content comes from Sanity). */
+function buildStaticLastmodMap() {
 	const map = new Map();
-
-	for (const file of walk(join(srcDir, 'content/blog'))) {
-		if (!/\.mdx?$/.test(file)) continue;
-		const slug = file.split(sep).pop().replace(/\.mdx?$/, '');
-		const lastmod = gitLastmod(file);
-		if (lastmod) for (const cluster of CLUSTERS) map.set(`/${cluster}/${slug}/`, lastmod);
-	}
-
 	const pagesDir = join(srcDir, 'pages');
+
 	for (const file of walk(pagesDir)) {
 		const rel = relative(pagesDir, file).split(sep).join('/');
 		let url;
@@ -103,7 +97,7 @@ const fileEnv = loadEnv(
 	'',
 );
 const SITE = resolveSite(fileEnv);
-const lastmodByUrl = buildLastmodMap();
+const lastmodByUrl = buildStaticLastmodMap();
 
 const isCI = Boolean(process.env.CI || process.env.CF_PAGES || process.env.WORKERS_CI);
 const explicitSite = process.env.SITE_URL || process.env.PUBLIC_SITE_URL || fileEnv.SITE_URL;
@@ -114,6 +108,48 @@ if (isCI && !explicitSite) {
 			'the sitemap, RSS and llms.txt will use the localhost fallback. Set SITE_URL\n' +
 			'(e.g. https://petsignals.info) as a build variable so production URLs are correct.',
 	);
+}
+
+/** Posts live in Sanity, so their sitemap lastmod comes from the dataset, not git. */
+function sanityLastmod() {
+	return {
+		name: 'pet-signals:sanity-lastmod',
+		hooks: {
+			'astro:config:setup': async () => {
+				const pick = (key) => process.env[key] || fileEnv[key];
+				const projectId = pick('PUBLIC_SANITY_PROJECT_ID');
+				const dataset = pick('PUBLIC_SANITY_DATASET') || 'production';
+				const token = pick('SANITY_API_READ_TOKEN');
+				if (!projectId) return;
+
+				try {
+					const client = createClient({
+						projectId,
+						dataset,
+						apiVersion: SANITY_API_VERSION,
+						useCdn: false,
+						...(token ? { token } : {}),
+					});
+					const rows = await client.fetch(
+						`*[_type == "post" && !(_id in path("drafts.**"))]{
+              "slug": slug.current, "cluster": category->slug,
+              "lastmod": coalesce(updatedAt, _updatedAt)
+            }`,
+					);
+					for (const row of rows) {
+						if (row.slug && row.cluster && row.lastmod) {
+							lastmodByUrl.set(`/${row.cluster}/${row.slug}/`, new Date(row.lastmod).toISOString());
+						}
+					}
+					console.log(`[pet-signals] Sitemap lastmod: ${rows.length} posts from Sanity`);
+				} catch (error) {
+					console.warn(
+						`[pet-signals] Could not read post lastmod from Sanity (${error?.message ?? error}); sitemap will omit it for posts.`,
+					);
+				}
+			},
+		},
+	};
 }
 
 // https://astro.build/config
@@ -133,7 +169,7 @@ export default defineConfig({
 		// e.g. '/pet-behavior/old-slug/': '/pet-behavior/new-slug/',
 	},
 	integrations: [
-		mdx(),
+		sanityLastmod(),
 		sitemap({
 			filter: (page) => !page.includes('/404') && !page.endsWith('.md'),
 			serialize(item) {

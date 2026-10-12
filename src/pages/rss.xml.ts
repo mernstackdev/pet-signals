@@ -2,6 +2,7 @@ import rss from '@astrojs/rss';
 import type { APIRoute } from 'astro';
 
 import { getPosts, postPath } from '../lib/content';
+import { portableTextToHtml } from '../lib/portable-text';
 import { SITE } from '../lib/site';
 
 export const GET: APIRoute = async (context) => {
@@ -18,7 +19,7 @@ export const GET: APIRoute = async (context) => {
 			pubDate: post.data.publishDate,
 			link: postPath(post),
 			categories: [post.data.cluster, ...post.data.tags],
-			content: post.rendered?.html ?? post.data.description,
+			content: portableTextToHtml(post.blocks),
 		})),
 	});
 };

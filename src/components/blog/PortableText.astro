@@ -1,0 +1,103 @@
+---
+import { groupBlocks } from '../../lib/portable-text';
+import SanityImage from '../ui/SanityImage.astro';
+
+interface Props {
+	blocks: any[];
+}
+
+const { blocks } = Astro.props;
+const items = groupBlocks(blocks);
+
+const calloutTones: Record<string, string> = {
+	info: 'border-brand-400 bg-brand-50',
+	tip: 'border-teal-400 bg-teal-50',
+	warning: 'border-amber-500 bg-amber-50',
+	vet: 'border-red-400 bg-red-50',
+};
+---
+
+{
+	items.map((item) =>
+		item.kind === 'text' ? (
+			<Fragment set:html={item.html} />
+		) : item.kind === 'list' ? (
+			item.ordered ? (
+				<ol>
+					{item.items.map((entry) => (
+						<li set:html={entry.html} />
+					))}
+				</ol>
+			) : (
+				<ul>
+					{item.items.map((entry) => (
+						<li set:html={entry.html} />
+					))}
+				</ul>
+			)
+		) : item.kind === 'image' ? (
+			<figure class="not-prose my-8">
+				<SanityImage
+					image={item.image}
+					widths={[600, 1000, 1400]}
+					sizes="(min-width: 768px) 768px, 100vw"
+					class="w-full rounded-card"
+				/>
+				{(item.image.caption || item.image.alt) && (
+					<figcaption class="mt-2 text-sm text-muted">
+						{item.image.caption ?? item.image.alt}
+					</figcaption>
+				)}
+			</figure>
+		) : item.kind === 'table' ? (
+			<div class="not-prose my-8 overflow-x-auto">
+				<table class="w-full border-collapse text-left text-sm">
+					{item.caption && <caption class="mb-2 text-left text-muted">{item.caption}</caption>}
+					{item.headerRows > 0 && item.rows[0] && (
+						<thead>
+							<tr>
+								{item.rows[0].map((cell) => (
+									<th
+										class="border-b-2 border-stone-300 px-3 py-2 font-semibold text-ink"
+										set:html={cell}
+									/>
+								))}
+							</tr>
+						</thead>
+					)}
+					<tbody>
+						{(item.headerRows > 0 ? item.rows.slice(1) : item.rows).map((row) => (
+							<tr>
+								{row.map((cell) => (
+									<td class="border-b border-stone-200 px-3 py-2 align-top text-muted" set:html={cell} />
+								))}
+							</tr>
+						))}
+					</tbody>
+				</table>
+			</div>
+		) : item.kind === 'callout' ? (
+			<aside
+				class:list={[
+					'not-prose my-8 rounded-card border-l-4 p-4',
+					calloutTones[item.tone ?? 'info'] ?? calloutTones.info,
+				]}
+			>
+				{item.title && <p class="font-bold text-ink">{item.title}</p>}
+				<p class="mt-1 text-sm text-ink">{item.body}</p>
+			</aside>
+		) : item.kind === 'pullQuote' ? (
+			<figure class="not-prose my-8 border-l-4 border-brand-400 pl-5">
+				<blockquote class="text-lg font-medium italic text-ink">{item.quote}</blockquote>
+				{item.attribution && <figcaption class="mt-2 text-sm text-muted">— {item.attribution}</figcaption>}
+			</figure>
+		) : item.kind === 'code' ? (
+			<div class="not-prose my-8 overflow-hidden rounded-card ring-1 ring-stone-200">
+				{item.filename && (
+					<p class="bg-stone-100 px-4 py-2 text-xs font-medium text-muted">{item.filename}</p>
+				)}
+				<pre class="overflow-x-auto bg-stone-900 p-4 text-sm leading-relaxed text-stone-100"><code>{item.code}</code></pre>
+			</div>
+		) : null,
+	)
+}

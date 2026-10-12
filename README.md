@@ -6,8 +6,8 @@ An SEO-first blog for **[petsignals.info](https://petsignals.info)** — pet beh
 
 - **[Astro 7](https://docs.astro.build)** — static HTML, zero client JS by default (great Core Web Vitals)
 - **Tailwind CSS v4** via `@tailwindcss/vite`, plus `@tailwindcss/typography` for article prose
-- **Content collections** (MDX) validated with Zod
-- `@astrojs/sitemap` (git-based `lastmod`) and `@astrojs/rss`
+- **Sanity** headless CMS for content (see [`cms/`](./cms/README.md)), fetched at build time
+- `@astrojs/sitemap` and `@astrojs/rss`
 
 ## Commands
 
@@ -26,17 +26,20 @@ The dev server can also run in background mode: `astro dev --background`, then `
 ```text
 src/
 ├── components/
-│   ├── blog/       # ArticleCard, ClusterCard, PostMeta, TableOfContents, FaqSection, HowToSteps…
+│   ├── blog/       # ArticleCard, ClusterCard, PostMeta, PortableText, TableOfContents, FaqSection…
 │   ├── global/     # Seo (head + JSON-LD), Header, Footer, Breadcrumbs, Logo
-│   └── ui/         # Container, Button, Prose, CtaBanner
-├── content/
-│   ├── authors/    # *.json author records
-│   └── blog/       # *.mdx articles
-├── content.config.ts   # collections + Zod schemas
+│   └── ui/         # Container, Button, Prose, CtaBanner, SanityImage
 ├── layouts/            # BaseLayout, ArticleLayout
-├── lib/                # site config, clusters, seo helpers, JSON-LD builders, content queries
+├── lib/
+│   ├── sanity.ts       # client, GROQ queries, CDN image URLs
+│   ├── content.ts      # Sanity → the shapes templates expect (the content seam)
+│   ├── portable-text.ts# Portable Text → HTML / plain text / Markdown
+│   ├── images.ts       # Sanity image ref + URL helpers
+│   └── …               # site config, clusters, seo helpers, JSON-LD builders
 ├── pages/              # routes (see below)
 └── styles/global.css   # Tailwind import + design tokens
+
+cms/                    # Sanity Studio + seed content — a separate app, never built here
 ```
 
 ### Routes
@@ -50,38 +53,17 @@ src/
 | `/about/`, `/contact/`, `/privacy/`, `/terms/`, `/404` | Supporting pages          |
 | `/rss.xml`, `/llms.txt`, `/sitemap-index.xml`, `/robots.txt` | Discovery           |
 
-## Authoring content
+## Content
 
-Add an MDX file to `src/content/blog/`. The filename becomes the slug, and the frontmatter is validated at build time.
+Articles live in **Sanity**, not in this repo. Editors work in the Studio (`cms/`); the site
+fetches published documents at build time.
 
-```yaml
----
-title: "Why Does My Dog Bark at Everything?"   # 10–120 chars
-description: "One or two sentences, 50–200 chars, used as the meta description." # 50–200
-cluster: pet-behavior         # pet-behavior | pet-habits | how-to-guides
-publishDate: 2026-09-18
-updatedDate: 2026-10-02       # optional — shown to readers + in schema when it differs
-author: maya-bennett          # id of a file in src/content/authors/
-heroImage: ../../assets/blog/pet-behavior.png   # optional
-heroImageAlt: "Descriptive alt text"
-tags: ["dog behavior", "barking"]
-featured: true                # optional — surfaces on the homepage
-draft: false                  # optional — drafts are excluded from the build
-faq:                          # optional — rendered visibly, in schema order
-  - question: "…"
-    answer: "…"
-howTo:                        # optional — emits HowTo schema + a visible steps section
-  name: "How to trim your dog's nails"
-  totalTime: "PT10M"
-  steps:
-    - name: "Get your dog comfortable"
-      text: "…"
----
-```
-
-Write body headings as `##` (major sections) and `###` (sub-sections). The page title is the only `<h1>`.
-
-Add authors as JSON files in `src/content/authors/`.
+- **Add or edit an article** as a `post` document in the Studio. The body is Portable Text and
+  supports headings (h2–h4), bulleted/numbered lists, images with alt text + caption, tables,
+  block quotes, pull quotes, callouts and code blocks.
+- **Publishing triggers a rebuild** through a Sanity webhook → Cloudflare deploy hook
+  (see [cms/README.md](./cms/README.md#publishing-triggers-a-rebuild)).
+- The Markdown in `cms/seed/` is only the one-off import source — the build never reads it.
 
 ## SEO implementation
 
@@ -89,7 +71,8 @@ Add authors as JSON files in `src/content/authors/`.
 - **`src/lib/schema.ts`** builds one linked `@graph` per page with stable `@id`s — `Organization`, `WebSite`, `WebPage`, `BlogPosting`, `Person`, `ImageObject`, `BreadcrumbList`, `ItemList`, and `HowTo` where relevant.
 - **Canonical URLs** are normalised (query stripped, trailing slash enforced) and always match `og:url`.
 - **`public/robots.txt`** allows all crawlers, explicitly allows AI crawlers, and points to the sitemap.
-- **Sitemap** is generated with `lastmod` derived from git commit times. Excludes `/404`.
+- **Sitemap** uses `lastmod` from Sanity (`updatedAt` / `_updatedAt`) for posts and git commit
+  times for static pages. Excludes `/404`.
 - **`/rss.xml`** is a full-content feed.
 - Every page has exactly one `<h1>`, a logical heading order, and visible breadcrumbs that match the `BreadcrumbList` schema.
 
@@ -167,6 +150,10 @@ Cloudflare builds on every push with these settings:
   - `SITE_URL` = `https://petsignals.info` — drives canonical URLs, JSON-LD `@id`, the sitemap,
     RSS, `/llms.txt` and the `.md` alternates. Without it the build falls back to
     `http://localhost:4321` and logs a warning.
+  - `PUBLIC_SANITY_PROJECT_ID` = your Sanity project id
+  - `PUBLIC_SANITY_DATASET` = `production`
+  - `SANITY_API_READ_TOKEN` = a Sanity **Viewer** token. Required while the dataset is private —
+    without it the build cannot read any content.
   - `NODE_VERSION` = `22.12.0` — also pinned in `.nvmrc`
 
 > The `name` in `wrangler.toml` (`pet-signals`) must match the Worker name in the dashboard,
@@ -227,16 +214,17 @@ callouts, code), **authors**, **categories**, a **site-settings** singleton, and
 How-To, keywords). See [`cms/README.md`](./cms/README.md) for setup, the SEO field
 reference, and how each field maps to JSON-LD.
 
-### Wiring the frontend to Sanity
+### How the frontend reads content
 
-Pages read content **only** through `src/lib/content.ts` and `src/lib/schema.ts`, so the swap
-is contained:
+`src/lib/content.ts` is the only module that talks to Sanity, and it adapts documents into the
+shapes the templates already used — so routes and components stay source-agnostic:
 
-1. Add `@sanity/client` (+ `@sanity/image-url`, `@portabletext/to-html`) to this project.
-2. Replace the `glob()` loaders in `src/content.config.ts` with a Sanity loader that maps
-   documents onto the same shape the templates expect.
-3. Render Portable Text with components for `imageWithAlt`, `table`, `callout`, `pullQuote`
-   and `codeBlock`.
-4. Point the JSON-LD builders at the `faq` / `howTo` fields.
+| Piece | Role |
+| :--- | :--- |
+| `src/lib/sanity.ts` | Client, GROQ projections, CDN image URLs |
+| `src/lib/content.ts` | Adapts Sanity docs → `Post` / `Author` (one fetch per build) |
+| `src/lib/portable-text.ts` | Portable Text → HTML, plain text and Markdown |
+| `src/components/blog/PortableText.astro` | Renders the body (tables, callouts, images, code…) |
+| `src/components/ui/SanityImage.astro` | `<img>` with a Sanity CDN `srcset` and intrinsic dimensions |
 
-No page templates need to change.
+All of it runs at build time, so the read token never reaches the browser.

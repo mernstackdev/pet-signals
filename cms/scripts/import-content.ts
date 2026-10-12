@@ -23,9 +23,9 @@ import { CLUSTERS } from '../../src/lib/clusters';
 /* ------------------------------------------------------------------ setup */
 
 const cmsDir = resolve(fileURLToPath(new URL('.', import.meta.url)), '..');
-const rootDir = resolve(cmsDir, '..');
-const blogDir = join(rootDir, 'src/content/blog');
-const authorsDir = join(rootDir, 'src/content/authors');
+const seedDir = join(cmsDir, 'seed');
+const blogDir = join(seedDir, 'blog');
+const authorsDir = join(seedDir, 'authors');
 
 try {
 	process.loadEnvFile(join(cmsDir, '.env'));
