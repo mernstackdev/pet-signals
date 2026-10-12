@@ -93,6 +93,25 @@ function textBlock(style: string, text: string, extra: Record<string, unknown> =
 	};
 }
 
+/** GFM pipe table → the `table` shape Studio's table editor binds to. */
+function tableBlock(header: string[], rows: string[][]) {
+	const toRow = (cells: string[]) => ({
+		_type: 'row',
+		_key: key(),
+		cells: cells.map((cell) => ({
+			_type: 'cell',
+			_key: key(),
+			value: [textBlock('normal', cell)],
+		})),
+	});
+	return {
+		_type: 'table',
+		_key: key(),
+		headerRows: 1,
+		rows: [toRow(header), ...rows.map(toRow)],
+	};
+}
+
 /**
  * Markdown → Portable Text.
  * Covers the subset the seed content uses: #/##/### headings, paragraphs,
@@ -129,14 +148,59 @@ function markdownToPortableText(markdown: string) {
 			continue;
 		}
 
-		if (/^>\s?/.test(line)) {
+		// GFM pipe table (header row + `| --- |` delimiter)
+		if (line.startsWith('|') && index + 1 < lines.length && /^\|[\s:|-]+\|$/.test(lines[index + 1].trim())) {
 			flush();
-			const quote: string[] = [];
-			while (index < lines.length && /^>\s?/.test(lines[index].trim())) {
-				quote.push(lines[index].trim().replace(/^>\s?/, ''));
+			const splitRow = (row: string) =>
+				row
+					.trim()
+					.replace(/^\||\|$/g, '')
+					.split('|')
+					.map((cell) => cell.trim());
+			const header = splitRow(line);
+			index += 2;
+			const rows: string[][] = [];
+			while (index < lines.length && lines[index].trim().startsWith('|')) {
+				rows.push(splitRow(lines[index].trim()));
 				index++;
 			}
-			blocks.push(textBlock('blockquote', quote.join(' ')));
+			blocks.push(tableBlock(header, rows));
+			continue;
+		}
+
+		if (/^>\s?/.test(line)) {
+			flush();
+			const quoteLines: string[] = [];
+			while (index < lines.length && /^>\s?/.test(lines[index].trim())) {
+				quoteLines.push(lines[index].trim().replace(/^>\s?/, ''));
+				index++;
+			}
+			// Keep the structure inside a quote: prose stays a blockquote, while
+			// bullet/numbered lines become real list items.
+			let paragraph: string[] = [];
+			const flushQuote = () => {
+				const text = paragraph.join(' ').trim();
+				paragraph = [];
+				if (text) blocks.push(textBlock('blockquote', text));
+			};
+			for (const quoteLine of quoteLines) {
+				const trimmed = quoteLine.trim();
+				const item = /^([-*+]|\d+[.)])\s+(.*)$/.exec(trimmed);
+				if (item) {
+					flushQuote();
+					blocks.push(
+						textBlock('normal', item[2].trim(), {
+							listItem: /^\d/.test(item[1]) ? 'number' : 'bullet',
+							level: 1,
+						}),
+					);
+				} else if (!trimmed) {
+					flushQuote();
+				} else {
+					paragraph.push(trimmed);
+				}
+			}
+			flushQuote();
 			continue;
 		}
 
@@ -316,7 +380,9 @@ async function main() {
 			: undefined;
 
 		docs.push({
-			_id: `post.${slug}`,
+			// `draft: true` in the frontmatter writes a Sanity draft (drafts.<id>),
+			// so unfinished work lands in the dataset without going live.
+			_id: `${data.draft ? 'drafts.' : ''}post.${slug}`,
 			_type: 'post',
 			title: data.title,
 			slug: { _type: 'slug', current: slug },
