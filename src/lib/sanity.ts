@@ -11,8 +11,10 @@ import { buildImageSrcSet, buildImageUrl } from './images';
 export const sanityProjectId = import.meta.env.PUBLIC_SANITY_PROJECT_ID;
 export const sanityDataset = import.meta.env.PUBLIC_SANITY_DATASET || 'production';
 
-/** Only needed while the dataset is private (ours is). */
-const readToken = typeof process !== 'undefined' ? process.env.SANITY_API_READ_TOKEN : undefined;
+/** Optional: only needed while the dataset is private (ours is).
+ * Read from `import.meta.env`, not `process.env` — Astro injects private `.env`
+ * values here for server code in dev and build alike. */
+const readToken = import.meta.env.SANITY_API_READ_TOKEN;
 
 if (!sanityProjectId) {
 	throw new Error(

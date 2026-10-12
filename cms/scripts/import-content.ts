@@ -249,7 +249,7 @@ const resolveAsset = (relative: string) => resolve(blogDir, relative);
 
 /* ------------------------------------------------------------------- push */
 
-const client = () =>
+const apiClient = () =>
 	createClient({
 		projectId: projectId!,
 		dataset,
@@ -257,6 +257,22 @@ const client = () =>
 		token: token!,
 		useCdn: false,
 	});
+
+/**
+ * Upload an image, reusing the existing asset with the same filename so
+ * re-running the import doesn't pile up duplicate assets.
+ */
+async function resolveAssetRef(file: string) {
+	const client = apiClient();
+	const filename = basename(file);
+	const existing = await client.fetch<string | null>(
+		`*[_type == "sanity.imageAsset" && originalFilename == $filename][0]._id`,
+		{ filename },
+	);
+	if (existing) return existing;
+	const asset = await client.assets.upload('image', readFileSync(file), { filename });
+	return asset._id;
+}
 
 /* ------------------------------------------------------------------- main */
 
@@ -270,13 +286,10 @@ async function main() {
 		let heroImage: Record<string, unknown> | undefined;
 		if (assetPath) {
 			if (push) {
-				const asset = await client().assets.upload('image', readFileSync(assetPath), {
-					filename: basename(assetPath),
-				});
 				heroImage = {
 					_type: 'imageWithAlt',
 					alt: data.heroImageAlt ?? data.title,
-					asset: { _type: 'reference', _ref: asset._id },
+					asset: { _type: 'reference', _ref: await resolveAssetRef(assetPath) },
 				};
 			} else {
 				heroImage = {
@@ -353,7 +366,7 @@ async function main() {
 		return;
 	}
 
-	const transaction = client().transaction();
+	const transaction = apiClient().transaction();
 	for (const doc of docs) transaction.createOrReplace(doc);
 	const result = await transaction.commit();
 	console.log(`\nPushed to ${projectId}/${dataset}: ${result.results.length} documents written.`);
